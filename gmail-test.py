@@ -25,7 +25,7 @@ from oauth2client.client import AccessTokenRefreshError
 from oauth2client.client import OAuth2WebServerFlow
 
 # For this example, the client id and client secret are command-line arguments.
-client_json = json.load(open('client_id.json'))['installed']
+client_json = json.load(open('/home/matt/projects/bga/gm/client_id.json'))['installed']
 #client_id = sys.argv[1]
 client_id = client_json['client_id']
 #client_secret = sys.argv[2]
@@ -33,12 +33,12 @@ client_secret = client_json['client_secret']
 
 # The scope URL for read/write access to a user's calendar data
 # scope = 'https://www.googleapis.com/auth/gmail'
-scope = 'https://www.googleapis.com/auth/gmail.labels'
+scopes = ['https://www.googleapis.com/auth/gmail.labels','https://www.google.com/m8/feeds']
 
 # Create a flow object. This object holds the client_id, client_secret, and
 # scope. It assists with OAuth 2.0 steps to get user authorization and
 # credentials.
-flow = OAuth2WebServerFlow(client_id, client_secret, scope)
+flow = OAuth2WebServerFlow(client_id, client_secret, scopes)
 
 def main():
 
@@ -47,7 +47,7 @@ def main():
   # credentials file is provided. If the file does not exist, it is
   # created. This object can only hold credentials for a single user, so
   # as-written, this script can only handle a single user.
-  storage = Storage('credentials.dat')
+  storage = Storage('/home/matt/projects/bga/gm/credentials.dat')
 
   # The get() function returns the credentials for the Storage object. If no
   # credentials were found, None is returned.
@@ -89,11 +89,14 @@ def main():
     # response = request.execute()
     # Accessing the response like a dict object with an 'items' key
     # returns a list of item objects (events).
+    outfile = open('/tmp/foo.txt','w')
     for label in results.get('labels', []):
       # The event object is a dict object with a 'summary' key.
       print 'label', label['name']
+      outfile.write(label['name'])
       # Get the next request object by passing the previous request object to
       # the list_next method.
+    outfile.close()
 
   except AccessTokenRefreshError:
     # The AccessTokenRefreshError exception is raised if the credentials
