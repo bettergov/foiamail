@@ -18,7 +18,8 @@ credential_path = 'auth/credentials.dat'
 scopes = (
             'https://www.googleapis.com/auth/gmail.labels',
             'https://www.google.com/m8/feeds',
-            'https://www.googleapis.com/auth/gmail.compose'
+            'https://www.googleapis.com/auth/gmail.compose',
+            'https://mail.google.com/',
          )
 project_id = 'payroll17-164122'
 debug = True
