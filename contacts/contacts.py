@@ -1,5 +1,5 @@
 import csv
-from auth.auth import get_cred, get_gd_client
+from auth import auth
 import atom.data
 import gdata.data
 import gdata.contacts.data
@@ -11,7 +11,7 @@ infile_path  = 'contacts/bga_contacts.csv'
 ### END CONFIG ###
 
 
-gd_client = get_gd_client(get_cred())
+gd_client = auth.get_gd_client()
 
 
 def import_contacts():
@@ -48,9 +48,10 @@ def get_contacts_by_agency(contacts=get_contacts()):
     """
     agency_contacts = {}
     for contact in contacts:
-        if contact.organization.name.text not in agency_contacts:
-            agency_contacts[contact.organization.name.text] = []
-        agency_contacts[contact.organization.name.text].append(contact.email[0].address)
+        if contact.organization:
+            if contact.organization.name.text not in agency_contacts:
+                agency_contacts[contact.organization.name.text] = []
+            agency_contacts[contact.organization.name.text].append(contact.email[0].address)
     return agency_contacts
 
 

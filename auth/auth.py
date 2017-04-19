@@ -40,12 +40,12 @@ def get_cred():
     return credentials
 
 
-def get_service(credentials):
+def get_service(credentials=get_cred()):
     http = credentials.authorize(httplib2.Http())
     return build('gmail','v1',http=http)
 
 
-def get_gd_client(credentials):
+def get_gd_client(credentials=get_cred()):
     gd_client = gdata.contacts.client.ContactsClient(source=project_id)
     gd_token = gdata.gauth.OAuth2TokenFromCredentials(credentials)
     gd_client.auth_token = gd_token
@@ -53,9 +53,7 @@ def get_gd_client(credentials):
     return gd_client
 
 
-def test_cred():
-    credentials = get_cred()
-
+def test_cred(credentials=get_cred()):
     # gmail
     service = get_service(credentials)
     results = service.users().labels().list(userId='me').execute().get('labels',[])

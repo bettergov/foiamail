@@ -1,10 +1,9 @@
 import log
-
+from contacts import contacts
 ### START CONFIG ###
-
-
+att_exts = ['txt','csv','xls','xlsx','pdf']
 ### END CONFIG ###
-contacts_by_agency = get_contacts_by_agency()
+contacts_by_agency = contacts.get_contacts_by_agency()
 hashtags = [agency for agency in contacts_by_agency.keys()]
 
 def msgs_job():
@@ -28,8 +27,10 @@ def check_req_status(msg):
     return 'response'
 
 def check_att():
-    #TODO check for attachment
-    pass
+    # list len evals to bool
+    parts = message['payload']['parts']
+    return len([x for x in parts if x['filename'] and \
+            x['filename'].split('.')[-1] in att_exts])
 
 def check_agency_status(msg):
     hashtag_agency = check_agency_hashtag(msg)
@@ -40,24 +41,19 @@ def check_sender_agency(msg):
     # todo: check for multiple matches ie double agents
     return [agency for agency in contacts_by_agency if msg.sender in contacts_by_agency[agency]][0] 
 
-
 def hashtag_agency(msg):
-    #TODO find faster way to do this,
-    # check api syntax for body text
-    splits = msg.body().split('#')
-    #TODO: handle multiple hashtag results (unlikely)
-    matches = [x for x in splits if x.find(' ') == -1 and x in hashtags]
-    return matches[0] and matches
-
+    splits = base64.urlsafe_b64decode(msg['raw'].encode('ASCII')).split('#')
+    matches = [x for x in splits if x in hashtags]
+    return matches and matches[0] 
 
 def update_labels(msg_queue):
     for msg in msg_queue:
         if msg_queue[msg]['agency']:
-            pass # TODO: update label
+            msg['labelIds'].append(msg['agency'])
         else:
-            pass # TODO: label unidentified
+            msg['labelIds'].append(msg['unidentified'])
         if msg_queue[msg]['req_status']:
-            pass # TODO: update req status
+            msg['labelIds'].append(msg['req_status'])
 
 def label_sent(msg):
-    pass # TODO: label message sent
+        msg['labelIds'].append(msg['sent'])
