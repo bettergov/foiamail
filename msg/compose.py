@@ -4,23 +4,23 @@ from auth import auth
 from docx import Document
 from contacts.contacts import get_contacts_by_agency 
 from msg.utils import agency_slug
+from msg.label import label_agency
 from email.mime.text import MIMEText
 import base64
 
 ### START CONFIG ###
 foia_doc       = 'msg/payroll-foia2017.docx'
-test           = False
-test_recipient = 'mkiefer.bga@gmail.com'
 interval       = 1 # seconds
 subject        = 'Payroll FOIA | '
 me             = 'me'
 logtype        = 'msg'
 ### END CONFIG ###
 service = auth.get_service()
-drafts = service.users().drafts().list(userId='me',maxResults=2000).execute()
-if 'drafts' in drafts.keys(): drafts = drafts['drafts']
 
-def distribute(drafts=drafts,send=False):
+def distribute(drafts=[],send=False):
+    """
+    draft = [{'agency': agency_name,'draft': draft}]
+    """
     if not drafts: 
         pd = raw_input('No drafts found ... prep drafts now?[y/N]')
         if pd.lower() == 'y':
@@ -34,10 +34,7 @@ def prep_agency_drafts(contacts_by_agency=[]):
     """
     {agency:emailaddy}
     """
-    if test: 
-        contacts_by_agency = {'BGAtest':test_recipient}
-    elif not contacts_by_agency: 
-        contacts_by_agency = get_contacts_by_agency()
+    contacts_by_agency = get_contacts_by_agency()
     foia_text = load_foia_text()
     drafts = []
     for agency in contacts_by_agency:
@@ -45,7 +42,7 @@ def prep_agency_drafts(contacts_by_agency=[]):
         body = foia_text + '\r\n\r\n' + slug
         slug_subject = subject + agency
         contacts = ','.join(contacts_by_agency[agency])
-        draft = compose_draft(body,slug_subject,contacts)
+        draft = {'agency':agency,'draft':compose_draft(body,slug_subject,contacts)}
         drafts.append(draft)
     print drafts
     return drafts
@@ -66,28 +63,40 @@ def compose_draft(body,subject,contacts):
     try:
         message = compose_message(body,subject,contacts)
         #return service.users().drafts().create(userId=me, body=message).execute()    
-        return service.users().drafts().create(userId=me,body={'message':message}).execute()
+        draft_id = service.users().drafts().create(userId='me',body={'message':message}).execute()['id']
+        draft = service.users().drafts().get(userId='me',id=draft_id).execute()
+        return draft
     except Exception, e:
         print e
-        import ipdb; ipdb.set_trace()
 
 def compose_message(body,subject,contacts):
     message            = MIMEText(body)
     message['subject'] = subject
     message['from']    = me
-    message['to']      = test_recipient if test else contacts
+    message['to']      = contacts
     #return message
     return {'raw': base64.urlsafe_b64encode(message.as_string())}
 
 def sender(draft):
-    sent = service.users().drafts().send(userId='me',body={'id':draft['id']}).execute()
+    agency = draft['agency']
+    draft = draft['draft']
+    try:
+        sent = service.users().drafts().send(userId='me',body={'id':draft['id']}).execute()
+        thread = service.users().threads().get(userId='me',id=sent['threadId']).execute()
+        msg = thread['messages'][0]
+        label_agency(msg,agency)
+    except Exception, e:
+        print('draft.id',draft['id'],'raised exception')
+        log.log_data('msg',[{'draft_id':draft['id'],'exception':e}])
     print('sent',sent)
     sleep(interval)
 
 def delete_drafts(draft_ids=[]):
     if not draft_ids:
         # check for existence of drafts
+        drafts = service.users().drafts().list(userId='me',maxResults=2000).execute()
         draft_ids = [x['id'] for x in drafts if type(drafts) == 'list'] #hack
+        if 'drafts' in drafts.keys(): drafts = drafts['drafts']
     print('len(draft_ids)',len(draft_ids))
     dd = raw_input('delete  drafts?[y/N]')
     if dd.lower() == 'y':

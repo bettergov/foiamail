@@ -37,6 +37,9 @@ def check_labels(msg):
     return {'msg':msg,'req_status':req_status,'agency':agency}
 
 def check_req_status(msg):
+    em_from = [x for x in msg['payload']['headers'] if x['name'] == 'From'][0]['value']
+    if em_from.split('@')[-1] == 'bettergov.org':
+        return
     if check_att(msg):
         return '*attachment'
     return '*responded'
@@ -84,7 +87,7 @@ def update_labels(msg_queue):
             if x['req_status']:
                 label_status(msg,x['req_status'])
             print 'labels', x
-            #log.log_data('label',{'msg_id':msg['id'],'agency':x['agency'] if x['agency'] else 'unidentified','status':x['status']})
+            log.log_data('label',[{'msg_id':msg['id'],'agency':x['agency'] if x['agency'] else 'unidentified','status':x['status']}])
         except Exception, e:
             print e
             import ipdb; ipdb.set_trace()
