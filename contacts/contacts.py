@@ -4,9 +4,11 @@ import atom.data
 import gdata.data
 import gdata.contacts.data
 from time import sleep
+from log import log
 
 ### START CONFIG ###
-infile_path      = 'contacts/bga_contacts.csv'
+#infile_path      = 'contacts/bga_contacts.csv'
+infile_path      = 'contacts/redo_contacts.csv'
 test_infile_path = 'contacts/test_contacts.csv'
 test             = False
 ### END CONFIG ###
@@ -27,6 +29,7 @@ def load_contacts():
             print 'new contacts', contact_entry
         except Exception, e:
             print 'problem with',contact['email'], e
+            log.log_data('contact',contact)
 
 def import_contacts():
     return [x for x in csv.DictReader(open(infile_path))]

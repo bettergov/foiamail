@@ -22,7 +22,7 @@ def init_labels(delete=False):
 def init_msgs(delete=False,send=False):
     if delete:
         compose.delete_drafts()
-        compose.prep_agency_drafts()
+        #compose.prep_agency_drafts()
     if send:
         compose.distribute(send=send)
     else:

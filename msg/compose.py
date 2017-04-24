@@ -21,6 +21,7 @@ def distribute(drafts=[],send=False):
     """
     draft = [{'agency': agency_name,'draft': draft}]
     """
+    #TODO: recovery function to get unsent drafts *by agency*
     if not drafts: 
         pd = raw_input('No drafts found ... prep drafts now?[y/N]')
         if pd.lower() == 'y':
@@ -43,8 +44,10 @@ def prep_agency_drafts(contacts_by_agency=[]):
         slug_subject = subject + agency
         contacts = ','.join(contacts_by_agency[agency])
         draft = {'agency':agency,'draft':compose_draft(body,slug_subject,contacts)}
+        #TODO label the draft here not when you send so you can verify thanks
         drafts.append(draft)
     print drafts
+    #TODO verify all agencies have a draft ... some get skipped i.e. service errors
     return drafts
 
 def sanity_check(drafts):
@@ -87,7 +90,7 @@ def sender(draft):
         label_agency(msg,agency)
     except Exception, e:
         print('draft.id',draft['id'],'raised exception')
-        log.log_data('msg',[{'draft_id':draft['id'],'exception':e}])
+        log.log_data('msg',[{'draft_id':draft['id'],'agency':agency,'exception':e}])
     print('sent',sent)
     sleep(interval)
 
