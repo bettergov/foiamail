@@ -28,8 +28,8 @@ def msgs_job():
 
 def select_unlabeled_msgs():
     #TODO 1st fix this unlabeled messages query
-    #return service.users().messages().list(q='has:nouserlabels',userId='me').execute()['messages']
-    return service.users().messages().list(userId='me').execute()['messages']
+    return service.users().messages().list(q='has:nouserlabels',userId='me').execute()['messages']
+    #return service.users().messages().list(userId='me').execute()['messages']
 
 def check_labels(msg):
     msg = service.users().messages().get(id=msg['id'],userId='me').execute()
