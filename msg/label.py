@@ -27,6 +27,7 @@ def msgs_job():
     update_labels(msg_label_queue)
 
 def select_unlabeled_msgs():
+    #TODO 1st fix this unlabeled messages query
     #return service.users().messages().list(q='has:nouserlabels',userId='me').execute()['messages']
     return service.users().messages().list(userId='me').execute()['messages']
 
@@ -74,7 +75,7 @@ def check_agency_hashtag(msg):
         matches = [x for x in splits if x in agencies]
         return matches and matches[0] 
     except Exception, e:
-        import ipdb; ipdb.set_trace()
+        #import ipdb; ipdb.set_trace()
 
 def update_labels(msg_queue):
     for x in msg_queue:
@@ -83,22 +84,28 @@ def update_labels(msg_queue):
             if x['agency']:
                 label_agency(msg,x['agency'])
             else:
-                label_agency(msg,'*unidentified')
+                pass #label_agency(msg,'*unidentified')
             if x['req_status']:
                 label_status(msg,x['req_status'])
             print 'labels', x
-            log.log_data('label',[{'msg_id':msg['id'],'agency':x['agency'] if x['agency'] else 'unidentified','status':x['status']}])
+            #log.log_data('label',[{'msg_id':msg['id'],'agency':x['agency'] if x['agency'] else 'unidentified','status':x['req_status']}])
         except Exception, e:
             print e
-            import ipdb; ipdb.set_trace()
+            #import ipdb; ipdb.set_trace()
 
 def label_agency(msg,agency):
     label_id = lookup_label(agency)
+    #TODO 2nd check if agency lookup
+    #import ipdb; ipdb.set_trace()
     if label_id:
         service.users().messages().modify(userId='me', id=msg['id'],body={"addLabelIds":[label_id]}).execute()
 
 def label_status(msg,status):
     status_label = lookup_label(status)
+    #TODO 3rd check if agency assigned,
+    # and if status is correct
+    # then step through and see if it assigns
+    #import ipdb; ipdb.set_trace()
     if status_label:
         service.users().messages().modify(userId='me', id=msg['id'],body={"addLabelIds":[status_label]}).execute()
 
