@@ -5,7 +5,7 @@ todo:
 from log import log
 from contacts import contacts
 from auth import auth
-import base64
+import base64, email
 from msg.utils import agency_slug
 
 ### START CONFIG ###
@@ -18,18 +18,16 @@ contacts_by_agency = contacts.get_contacts_by_agency()
 agencies = [agency for agency in contacts_by_agency.keys()]
 labels = service.users().labels().list(userId='me').execute()['labels'] 
 
-def msgs_job():
-    msgs = select_unlabeled_msgs()
+def msgs_job(msgs=None):
+    if not msgs:
+        msgs = select_unlabeled_msgs()
     msg_label_queue = []
     for msg in msgs:
         msg_label_queue.append(check_labels(msg))
-        print msg
     update_labels(msg_label_queue)
 
 def select_unlabeled_msgs():
-    #TODO 1st fix this unlabeled messages query
     return service.users().messages().list(q='has:nouserlabels',userId='me').execute()['messages']
-    #return service.users().messages().list(userId='me').execute()['messages']
 
 def check_labels(msg):
     msg = service.users().messages().get(id=msg['id'],userId='me').execute()
@@ -71,11 +69,35 @@ def check_agency_hashtag(msg):
     try:
         msg = service.users().messages().get(id=msg['id'],userId='me',format='raw').execute()
         body = base64.urlsafe_b64decode(msg['raw'].encode('ASCII'))
-        splits = body.split('#')
-        matches = [x for x in splits if x in agencies]
-        return matches and matches[0] 
+        em = email.message_from_string(body)
+        if em.get_content_maintype() == 'multipart':
+            match = recursive_match_scan(em)
+        else:
+            match = split_and_check(em.get_payload())
+        return match 
     except Exception, e:
-        #import ipdb; ipdb.set_trace()
+        pass
+
+
+def recursive_match_scan(em):
+    """
+    i don't know how to properly do recursion
+    but it seems to make sense to start the function
+    at the point where you know it's multipart
+    """
+    for part in parts:
+        if part.get_content_maintype() == 'multipart':
+            match = recursive_match_scan(part)
+        else:
+            match = split_and_check(part.get_payload())
+        if match:
+            return match
+            # this return should bubble up to the top layer of recursion
+
+def split_and_check(text):
+    for chunk in text.split('#'):
+        if chunk in agencies:
+            return chunk
 
 def update_labels(msg_queue):
     for x in msg_queue:
@@ -87,7 +109,7 @@ def update_labels(msg_queue):
                 pass #label_agency(msg,'*unidentified')
             if x['req_status']:
                 label_status(msg,x['req_status'])
-            print 'labels', x
+            print 'labels', x['msg']['id'],x['agency'],x['req_status']
             #log.log_data('label',[{'msg_id':msg['id'],'agency':x['agency'] if x['agency'] else 'unidentified','status':x['req_status']}])
         except Exception, e:
             print e
