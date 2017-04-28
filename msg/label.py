@@ -16,6 +16,7 @@ statuses = ['*unidentified','*responded','*attachment','*done']
 service = auth.get_service()
 contacts_by_agency = contacts.get_contacts_by_agency()
 agencies = [agency for agency in contacts_by_agency.keys()]
+slugs = [agency_slug(agency) for agency in agencies]
 labels = service.users().labels().list(userId='me').execute()['labels'] 
 
 def msgs_job(msgs=None):
@@ -85,7 +86,7 @@ def recursive_match_scan(em):
     but it seems to make sense to start the function
     at the point where you know it's multipart
     """
-    for part in parts:
+    for part in em.get_payload():
         if part.get_content_maintype() == 'multipart':
             match = recursive_match_scan(part)
         else:
@@ -95,8 +96,8 @@ def recursive_match_scan(em):
             # this return should bubble up to the top layer of recursion
 
 def split_and_check(text):
-    for chunk in text.split('#'):
-        if chunk in agencies:
+    for chunk in base64.urlsafe_b64decode(text).split('#'):
+        if '#' + chunk + '#' in slugs:
             return chunk
 
 def update_labels(msg_queue):
@@ -106,7 +107,8 @@ def update_labels(msg_queue):
             if x['agency']:
                 label_agency(msg,x['agency'])
             else:
-                pass #label_agency(msg,'*unidentified')
+                if not get_thread_agency_label(msg):
+                    label_agency(msg,'*unidentified')
             if x['req_status']:
                 label_status(msg,x['req_status'])
             print 'labels', x['msg']['id'],x['agency'],x['req_status']
@@ -116,7 +118,7 @@ def update_labels(msg_queue):
             #import ipdb; ipdb.set_trace()
 
 def label_agency(msg,agency):
-    label_id = lookup_label(agency)
+    label_id = lookup_label('agency/' + agency) # see https://github.com/mattkiefer/gm/issues/1
     #TODO 2nd check if agency lookup
     #import ipdb; ipdb.set_trace()
     if label_id:
@@ -130,6 +132,13 @@ def label_status(msg,status):
     #import ipdb; ipdb.set_trace()
     if status_label:
         service.users().messages().modify(userId='me', id=msg['id'],body={"addLabelIds":[status_label]}).execute()
+
+def get_thread_agency_label(msg):
+    t = service.users().threads().get(userId='me',id=msg['threadId']).execute()
+    for m in t['messages']:
+        for l in m['labelIds']:
+            if l in agencies:
+                return l
 
 def lookup_label(label_text):
     matches = [label for label in labels if label['name'] == label_text]
@@ -150,7 +159,7 @@ def delete_labels(label_ids=None):
 
 def create_labels(labels=[]):
     if not labels:
-        labels += agencies 
+        labels += ['agency/' + agency for agency in agencies] # see https://github.com/mattkiefer/gm/issues/1 
         labels += statuses
     for label in labels:
         print 'creating label', label
