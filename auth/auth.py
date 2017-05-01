@@ -42,7 +42,7 @@ def get_cred():
 
 
 def get_service(credentials=get_cred()):
-    http = credentials.authorize(httplib2.Http())
+    http = credentials.authorize(httplib2.Http(disable_ssl_certificate_validation=True))
     return build('gmail','v1',http=http)
 
 

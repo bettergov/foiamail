@@ -1,7 +1,10 @@
 from time import sleep
 from log import log
 from auth import auth
-from docx import Document
+try: 
+    from docx import Document 
+except:
+    pass
 from contacts.contacts import get_contacts_by_agency 
 from msg.utils import agency_slug
 from msg.label import label_agency
