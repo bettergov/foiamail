@@ -11,6 +11,8 @@ https://console.cloud.google.com/home/dashboard
 			enable api
 				gmail api
 				contacts api
+				sheets api
+				drive api
 					enable (and wait a few mins)
 
 DONE

@@ -7,6 +7,7 @@ from contacts import contacts
 from auth import auth
 import base64, email
 from msg.utils import agency_slug
+from datetime import datetime
 
 ### START CONFIG ###
 att_exts = ['txt','csv','xls','xlsx','pdf']
@@ -18,6 +19,7 @@ contacts_by_agency = contacts.get_contacts_by_agency()
 agencies = [agency for agency in contacts_by_agency.keys()]
 slugs = [agency_slug(agency) for agency in agencies]
 labels = service.users().labels().list(userId='me').execute()['labels'] 
+agency_label_ids = [x['id'] for x in labels if 'agency' in x['name']]
 
 def msgs_job(msgs=None):
     if not msgs:
@@ -28,10 +30,16 @@ def msgs_job(msgs=None):
     update_labels(msg_label_queue)
 
 def select_unlabeled_msgs():
-    return service.users().messages().list(q='has:nouserlabels',userId='me').execute()['messages']
+    today = datetime.now().strftime('%Y/%m/%d')
+    query = 'after:' + today
+    return service.users().messages().list(userId='me',q=query).execute()['messages']
 
 def check_labels(msg):
-    msg = service.users().messages().get(id=msg['id'],userId='me').execute()
+    try:
+        msg = service.users().messages().get(id=msg['id'],userId='me').execute()
+    except Exception, e:
+        print e
+        import ipdb; ipdb.set_trace()
     req_status = check_req_status(msg)
     agency = check_agency_status(msg)
     return {'msg':msg,'req_status':req_status,'agency':agency}
@@ -40,19 +48,19 @@ def check_req_status(msg):
     em_from = [x for x in msg['payload']['headers'] if x['name'] == 'From'][0]['value']
     if em_from.split('@')[-1] == 'bettergov.org':
         return
-    if check_att(msg):
+    if get_atts(msg):
         return '*attachment'
     return '*responded'
 
-def check_att(msg):
+def get_atts(msg):
     # list len evals to bool
-    has_att = False
+    atts = []
     if 'parts' in msg['payload'].keys():
         for part in msg['payload']['parts']:
             if 'filename' in part.keys() and \
                     part['filename'].split('.')[-1] in att_exts:
-                has_att = True
-    return has_att
+                atts.append(part)
+    return atts
 
 def check_agency_status(msg):
     hashtag = check_agency_hashtag(msg)
@@ -99,6 +107,9 @@ def split_and_check(text):
     for chunk in base64.urlsafe_b64decode(text).split('#'):
         if '#' + chunk + '#' in slugs:
             return chunk
+    for chunk in text.split('#'):
+        if '#' + chunk + '#' in slugs:
+            return chunk
 
 def update_labels(msg_queue):
     for x in msg_queue:
@@ -120,7 +131,6 @@ def update_labels(msg_queue):
 def label_agency(msg,agency):
     label_id = lookup_label('agency/' + agency) # see https://github.com/mattkiefer/gm/issues/1
     #TODO 2nd check if agency lookup
-    #import ipdb; ipdb.set_trace()
     if label_id:
         service.users().messages().modify(userId='me', id=msg['id'],body={"addLabelIds":[label_id]}).execute()
 
@@ -141,6 +151,7 @@ def get_thread_agency_label(msg):
                 return l
 
 def lookup_label(label_text):
+    #matches = [label for label in labels if label['name'].replace(' ','') == label_text]
     matches = [label for label in labels if label['name'] == label_text]
     if matches:
         return matches[0]['id']

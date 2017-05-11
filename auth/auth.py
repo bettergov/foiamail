@@ -20,6 +20,8 @@ scopes = (
             'https://www.google.com/m8/feeds',
             'https://www.googleapis.com/auth/gmail.compose',
             'https://mail.google.com/',
+            'https://www.googleapis.com/auth/spreadsheets',
+            'https://www.googleapis.com/auth/drive',
          )
 project_id = 'payroll17-164122'
 debug = True
@@ -41,10 +43,14 @@ def get_cred():
     return credentials
 
 
-def get_service(credentials=get_cred()):
+def get_service(credentials=get_cred(),type='gmail'):
     http = credentials.authorize(httplib2.Http(disable_ssl_certificate_validation=True))
-    return build('gmail','v1',http=http)
-
+    if type == 'gmail':
+        return build('gmail','v1',http=http)
+    elif type == 'sheets':
+        return build('sheets','v4',http=http)
+    elif type == 'drive':
+        return build('drive', 'v3', http=http)
 
 def get_gd_client(credentials=get_cred()):
     gd_client = gdata.contacts.client.ContactsClient(source=project_id)
@@ -55,14 +61,27 @@ def get_gd_client(credentials=get_cred()):
 
 
 def test_cred(credentials=get_cred()):
+    # contacts
+    gd_client = get_gd_client(credentials)
+    cs = gd_client.GetContacts().entry
+    if cs: print 'contact success'
+    else: print 'contact fail'
+
     # gmail
     service = get_service(credentials)
     results = service.users().labels().list(userId='me').execute().get('labels',[])
     if results: print 'gmail success'
     else: print 'gmail fail'
 
-    # contacts
-    gd_client = get_gd_client(credentials)
-    cs = gd_client.GetContacts().entry
-    if cs: print 'contact success'
-    else: print 'contact fail'
+    # drive
+    drive_service = get_service(type='drive')
+    results = drive_service.files().list(pageSize=10,fields="nextPageToken, files(id, name)").execute()
+    if results.get('files'): print 'drive success'
+    else: print 'drive fail'
+
+    # sheets
+    sheets_service = get_service(type='sheets')
+    results = sheets_service.spreadsheets().values().get(spreadsheetId=\
+            '1G65Gjn5dF60ZVYfHR0GAQZKUcoxGmeoFF_X3nSwsIiw',range='response.csv').execute()
+    if results.get('values'): print 'sheets success'
+    else: print 'sheets fail ... check the hardcoded example exists'

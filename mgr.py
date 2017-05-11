@@ -1,9 +1,14 @@
+#<3 CAT
 from auth import auth
 from log import log
 from msg import compose, label
 from contacts import contacts
 from sys import argv
-cron = '--cron' in argv
+from report import response
+from att import gm
+cron_label = '--label' in argv
+cron_report = '--report' in argv
+cron_atts = '--atts' in argv
 
 # contacts
 def init_contacts(delete=False):
@@ -29,13 +34,13 @@ def init_msgs(delete=False,send=False):
         print 'send with init_msgs(send=True)'
 
 ## cron
-if cron:
+if cron_label:
     label.msgs_job()
 
+if cron_report:
+    response.init()    
 
-# sheets
-
-
-
+if cron_atts:
+    gm.roll_thru()
 
 # drive?
