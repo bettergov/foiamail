@@ -10,7 +10,8 @@ from msg.utils import agency_slug
 from datetime import datetime
 
 ### START CONFIG ###
-att_exts = ['txt','csv','xls','xlsx','pdf']
+# TODO put these in a project config file
+att_exts = ['txt','csv','xls','xlsx','pdf'] 
 statuses = ['*unidentified','*responded','*attachment','*done']
 ### END CONFIG ###
 
@@ -58,7 +59,7 @@ def get_atts(msg):
     if 'parts' in msg['payload'].keys():
         for part in msg['payload']['parts']:
             if 'filename' in part.keys() and \
-                    part['filename'].split('.')[-1] in att_exts:
+                    part['filename'].split('.')[-1].lower() in att_exts:
                 atts.append(part)
     return atts
 
