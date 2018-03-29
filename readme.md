@@ -53,29 +53,36 @@ cat NewKey.pub | ssh -i OriginalKey.pem user@amazon-instance "cat >> .ssh/author
 
 
 ## os requirements
-sudo apt install python-setuptools
-sudo easy_install pip
+```
+sudo apt install python-setuptools 
+sudo easy_install pip  
 sudo pip install virtualenv 
+```
 
 ## code requirements
+```
 git clone https://github.com/mattkiefer/foiamail.git
+```
 
 ## python requirements
+```
 cd foiamachine
 virtualenv ./
 . bin/activate
 pip install requirements
+```
 
-## register google application
+## google requirements
+### register google application
 https://console.cloud.google.com/home/dashboard
 create project
 - iam & admin
   - api credentials
     - create credentials
       - oath clientid
-        - (download client_secret.json to project directory)
+        - (download client_secret.json to foiamail/auth/ and add path to auth.py config)
 
-## authorize google apis
+### authorize google apis
 - api manager
   - enable api
     - gmail api
