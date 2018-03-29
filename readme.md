@@ -57,26 +57,36 @@ sudo apt install python-setuptools
 sudo easy_install pip
 sudo pip install virtualenv 
 
+## code requirements
+git clone https://github.com/mattkiefer/foiamail.git
+
+## python requirements
+cd foiamachine
+virtualenv ./
+. bin/activate
+pip install requirements
+
 ## register google application
 https://console.cloud.google.com/home/dashboard
 create project
-    iam & admin
-        api credentials
-            create credentials
-                oath clientid
-                    (download client_secret.json to project directory)
-        api manager
-            enable api
-                gmail api
-                contacts api
-                sheets api
-                drive api
-            enable (and wait a few mins)
-
-
+- iam & admin
+  - api credentials
+    - create credentials
+      - oath clientid
+        - (download client_secret.json to project directory)
 
 ## authorize google apis
+- api manager
+  - enable api
+    - gmail api
+    - contacts api
+    - sheets api
+    - drive api
+    - enable (and wait a few mins)
+
+
 ### creds
+
 ### auth
 
 

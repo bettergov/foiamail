@@ -23,7 +23,6 @@ scopes = (
             'https://www.googleapis.com/auth/spreadsheets',
             'https://www.googleapis.com/auth/drive',
          )
-project_id = 'payroll17-164122'
 debug = True
 ### END CONFIG ###
 
@@ -32,6 +31,7 @@ debug = True
 storage = Storage(credential_path)
 client_json = json.load(open(client_id_path))['installed']
 client_id, client_secret = client_json['client_id'], client_json['client_secret']
+project_id = client_json['project_id']
 
 
 def get_cred():
