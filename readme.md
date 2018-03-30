@@ -93,20 +93,41 @@ create project
 
 
 ### creds
+The client_secret.json file downloaded from the [Google Cloud Platform](### register google application) is used to call up a browser-based google account login page, where the user authorizes access to the requested APIs and generates a credentials.dat file for download. Keep this file in the `foiamail/auth` directory. 
 
 ### auth
+The `auth` module works behind the scenes in every other FOIAMail module. The wrapper functions, `get_service()` and 'get_gd_client()`, are called by Contacts, GMail, Drive and Sheets APIs to authenticate requests.  
 
+The auth module depends on the credentials.dat file to verify requests. 
 
 # import/update contacts
-https://mail.google.com/mail/u/0/#contacts
+The `contacts` module function, `load_contacts()`, takes a specified csv file of contacts (with field headers 'first name','last name','agency' and 'email') and loads them into the user's Google Contacts.  
 
+These contacts are later accessed by GMail when generating FOIA requests.  
+
+Verify contacts are loaded via the [GMail Contacts screen](https://mail.google.com/mail/u/0/#contacts)
 
 # compose/send messages
-## import template
-## insert agency tag
-## create drafts
-## send
+Once contacts are loaded, FOIAs messages may be drafted and sent using the `msg` module.
 
+## import template
+A FOIA template should be saved to the `foiamail/msg` directory in .docx format and referenced in the configuration section of `compose.py`.  
+
+This template file will be imported when drafting FOIA messages.
+
+
+## create drafts
+The FOIAMail application creates one draft for each agency. These drafts are based off the above-referenced template and are identical with the following exceptions:
+- Each draft's `To:` field includes all email contacts on file under its agency's name.
+- Each draft's `Body` field is appended with the agency's unique slug. (Whitespace-stripped, title-cased, and appended/prepended by hashtags `#`, as defined in `mgs.utils`. e.g.: `#ArlingtonHeights#`)
+
+To create drafts, call the `distribute()` function in the `msg.compose` module. Leaving the keyword argument `drafts` to the default empty list, which prompts for preparation of new drafts for each agency.  
+
+
+## send
+To send, call `msg.compose` module's `distribute()` function with `send=True`.
+
+\# See issue \#4 
 
 # label incoming
 ## agency
