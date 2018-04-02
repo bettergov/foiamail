@@ -79,6 +79,8 @@ def get_status(threads,agency):
         return 'responded'
     elif 'SENT' in agency_statuses:
         return 'sent'
+    else:
+        return 'no status available'
 
 def get_thread_urls(threads):
     return '\r\n'.join(['https://mail.google.com/mail/u/2/#inbox/' + thread['id'] for thread in threads])
