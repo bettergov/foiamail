@@ -207,15 +207,25 @@ Because the GMail API doesn't expose hooks to trigger actions on message receipt
 
 Here's a sample crontab:
 ```bash
-
-
+# m h  dom mon dow   command
+*/15 7-19 * * * cd /home/matt/projects/bga/gm && . bin/activate && python mgr.py --label > /home/matt/projects/bga/gm/log/logs/cron-label
+0 5 * * * cd /home/matt/projects/bga/gm && . bin/activate && python mgr.py --report > /home/matt/projects/bga/gm/log/logs/cron-report
+50 6-20 * * * cd /home/matt/projects/bga/gm && . bin/activate && python mgr.py --atts > /home/matt/projects/bga/gm/log/logs/cron-atts
 ```
 
 
 # logging things
-## types of logging (verify they work)
+There are logging functions found in `log.log` that are designed to write debugging data for FOIAMail's core functions.  
 
-
-
+ 
+## types of logging
+Logs are configured for the following:
+- stdout
+- auth
+- contact
+- message
+- label
+- report
+- att
 
 # misc
