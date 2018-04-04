@@ -20,38 +20,50 @@ logtype        = 'msg'
 ### END CONFIG ###
 service = auth.get_service()
 
-def distribute(drafts=[],send=False):
+def distribute(send=False):
     """
     draft = [{'agency': agency_name,'draft': draft}]
     """
     #TODO: recovery function to get unsent drafts *by agency*
-    if not drafts: 
-        pd = raw_input('No drafts found ... prep drafts now?[y/N]')
-        if pd.lower() == 'y':
-            drafts = prep_agency_drafts()
+    drafts = prep_agency_drafts()
     if send and sanity_check(drafts):
-        for draft in drafts:
-            print('sending',draft) 
-            sender(draft)
+    	ready = raw_input('drafts created. inspect and type "send" to distribute')
+        if ready.lower() == 'send':
+            for draft in drafts:
+                print('sending',draft) 
+                sender(draft)
+            print('distribution complete.')
+        else:
+            print('aborting')
 
 def prep_agency_drafts(contacts_by_agency=[]):
     """
-    {agency:emailaddy}
+    {agency:[email_addresses]}
     """
-    contacts_by_agency = get_contacts_by_agency()
-    foia_text = load_foia_text()
-    drafts = []
-    for agency in contacts_by_agency:
-        slug = agency_slug(agency)
-        body = foia_text + '\r\n\r\n' + slug
-        slug_subject = subject + agency
-        contacts = ','.join(contacts_by_agency[agency])
-        draft = {'agency':agency,'draft':compose_draft(body,slug_subject,contacts)}
-        #TODO label the draft here not when you send so you can verify thanks
-        drafts.append(draft)
-    print drafts
-    #TODO verify all agencies have a draft ... some get skipped i.e. service errors
-    return drafts
+    # TODO: make sure there's a way to specify drafts by agency
+    if not contacts_by_agency:
+        contacts_by_agency = get_contacts_by_agency()
+    # first delete existing drafts
+    delete_drafts()
+    # then create new drafts
+    print('agencies to be prepped:', contacts_by_agency.keys())
+    pd = raw_input('prep drafts now? [y/N]')
+    if pd.lower() == 'y':
+        foia_text = load_foia_text()
+        drafts = []
+        for agency in contacts_by_agency:
+            slug = agency_slug(agency)
+            body = foia_text + '\r\n\r\n' + slug
+            slug_subject = subject + agency
+            contacts = ','.join(contacts_by_agency[agency])
+            draft = {'agency':agency,'draft':compose_draft(body,slug_subject,contacts)}
+            #TODO label the draft here not when you send so you can verify thanks
+            drafts.append(draft)
+            print(draft)
+        #TODO verify all agencies have a draft ... some get skipped i.e. service errors
+        return drafts
+    else:
+        print('skipping')
 
 def sanity_check(drafts):
     """
@@ -100,13 +112,19 @@ def sender(draft):
 def delete_drafts(draft_ids=[]):
     if not draft_ids:
         # check for existence of drafts
-        drafts = service.users().drafts().list(userId='me',maxResults=2000).execute()
+        drafts = get_drafts()
         draft_ids = [x['id'] for x in drafts if type(drafts) == 'list'] #hack
-        if 'drafts' in drafts.keys(): drafts = drafts['drafts']
     print('len(draft_ids)',len(draft_ids))
-    dd = raw_input('delete  drafts?[y/N]')
+    dd = raw_input('existing drafts found ... delete ?[y/N]')
     if dd.lower() == 'y':
         print drafts 
         for draft_id in draft_ids:
             print 'deleting', draft_id
             service.users().drafts().delete(userId='me',id=draft_id).execute()
+
+def get_drafts():
+    drafts = service.users().drafts().list(userId='me',maxResults=2000).execute()
+    if 'drafts' in drafts.keys(): 
+        drafts = drafts['drafts']
+    return drafts
+
