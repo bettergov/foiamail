@@ -74,31 +74,53 @@ pip install requirements
 
 ## google requirements
 ### register google application
-https://console.cloud.google.com/home/dashboard
+https://console.cloud.google.com/home/dashboard  
 create project
-- iam & admin
-  - api credentials
+
+### get credentials
+- apis & services
+  - credentials
     - create credentials
       - oath clientid
-        - (download client_secret.json to foiamail/auth/ and add path to auth.py config)
+      - configure consent screen
+      - application type: other
+      - save client_secret.json to foiamail/auth/ and add path to auth.py config
+
 
 ### authorize google apis
-- api manager
-  - enable api
+- apis & services
+  - library
+  - enable the following apis:
     - gmail api
     - contacts api
     - sheets api
     - drive api
-    - enable (and wait a few mins)
+It might take a few minutes.
 
+### obtain credentials.dat
+Activate the virtual environment and open a python console:
+```bash
+cd foiamachine
+. bin/activate
+python
+```
+Then trigger the Google credentials download by invoking the OAuth 2.0 flow: 
+```python
+from auth.auth import get_cred
+```
+Follow the instructions to copy/paste the link into a browser, then enter the verification code found on the screen.
 
-### creds
-The client_secret.json file downloaded from the [Google Cloud Platform](### register google application) is used to call up a browser-based google account login page, where the user authorizes access to the requested APIs and generates a credentials.dat file for download. Keep this file in the `foiamail/auth` directory. 
 
 ### auth
 The `auth` module works behind the scenes in every other FOIAMail module. The wrapper functions, `get_service()` and `get_gd_client()`, are called by Contacts, GMail, Drive and Sheets APIs to authenticate requests.  
 
-The auth module depends on the credentials.dat file to verify requests. 
+The auth module depends on the credentials.dat file to verify requests.  
+
+Verify authorization:
+```python
+from auth.auth import test_cred
+test_cred()
+```
 
 # importing/updating contacts
 The `contacts` module function, `load_contacts()`, takes a specified csv file of contacts (with field headers 'first name','last name','agency' and 'email') and loads them into the user's Google Contacts.  

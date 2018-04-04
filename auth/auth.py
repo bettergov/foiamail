@@ -13,7 +13,7 @@ import gdata.contacts.data
 
 
 ### START CONFIG ###
-client_id_path = 'auth/client_id.json'
+client_id_path = 'auth/client_id_2017.json'
 credential_path = 'auth/credentials.dat'
 scopes = (
             'https://www.googleapis.com/auth/gmail.labels',
@@ -39,7 +39,7 @@ def get_cred():
     if credentials is None or credentials.invalid or \
             sorted([x for x in credentials.scopes]) != sorted([x for x in scopes]):
         flow = OAuth2WebServerFlow(client_id, client_secret, scopes)
-        credentials = tools.run_flow(flow, storage, tools.argparser.parse_args())
+        credentials = tools.run_flow(flow, storage, tools.argparser.parse_args(['--noauth_local_webserver']))
     return credentials
 
 
@@ -63,8 +63,7 @@ def get_gd_client(credentials=get_cred()):
 def test_cred(credentials=get_cred()):
     # contacts
     gd_client = get_gd_client(credentials)
-    cs = gd_client.GetContacts().entry
-    if cs: print 'contact success'
+    if gd_client: print 'contact success'
     else: print 'contact fail'
 
     # gmail
@@ -81,7 +80,5 @@ def test_cred(credentials=get_cred()):
 
     # sheets
     sheets_service = get_service(type='sheets')
-    results = sheets_service.spreadsheets().values().get(spreadsheetId=\
-            '1G65Gjn5dF60ZVYfHR0GAQZKUcoxGmeoFF_X3nSwsIiw',range='response.csv').execute()
-    if results.get('values'): print 'sheets success'
-    else: print 'sheets fail ... check the hardcoded example exists'
+    if sheets_service: print 'sheets success'
+    else: print 'sheets fail'
