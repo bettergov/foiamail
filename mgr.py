@@ -24,7 +24,7 @@ def init_labels(delete=False):
     label.create_labels()
 
 # msg
-def init_msgs(delete=False,send=False):
+def init_msgs(send=False):
     if delete:
         compose.delete_drafts()
         #compose.prep_agency_drafts()

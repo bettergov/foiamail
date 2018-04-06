@@ -36,13 +36,10 @@ def distribute(send=False):
         else:
             print('aborting')
 
-def prep_agency_drafts(contacts_by_agency=[]):
+def prep_agency_drafts(contacts_by_agency=unsent_agency_contacts()):
     """
-    {agency:[email_addresses]}
+    contacts_by_agency = {agency:[email_addresses]}
     """
-    # TODO: make sure there's a way to specify drafts by agency
-    if not contacts_by_agency:
-        contacts_by_agency = get_contacts_by_agency()
     # first delete existing drafts
     delete_drafts()
     # then create new drafts
@@ -64,6 +61,13 @@ def prep_agency_drafts(contacts_by_agency=[]):
         return drafts
     else:
         print('skipping')
+
+def unsent_agency_contacts():
+    from report.response import get_threads
+    contacts_by_agency = get_contacts_by_agency
+    return dict((agency, contacts_by_agency[agency]) for agency\
+        in contacts_by_agency if not get_threads(agency))
+      
 
 def sanity_check(drafts):
     """
