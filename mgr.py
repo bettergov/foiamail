@@ -25,9 +25,6 @@ def init_labels(delete=False):
 
 # msg
 def init_msgs(send=False):
-    if delete:
-        compose.delete_drafts()
-        #compose.prep_agency_drafts()
     if send:
         compose.distribute(send=send)
     else:
@@ -37,10 +34,9 @@ def init_msgs(send=False):
 if cron_label:
     label.msgs_job()
 
-if cron_report:
-    response.init()    
-
 if cron_atts:
     gm.roll_thru()
 
-# drive?
+if cron_report:
+    response.init()    
+

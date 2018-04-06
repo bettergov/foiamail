@@ -1,10 +1,7 @@
 from time import sleep
 from log import log
 from auth import auth
-try: 
-    from docx import Document 
-except:
-    pass
+from docx import opendocx 
 from contacts.contacts import get_contacts_by_agency 
 from msg.utils import agency_slug
 from msg.label import label_agency
@@ -36,6 +33,14 @@ def distribute(send=False):
         else:
             print('aborting')
 
+def unsent_agency_contacts():
+    from report.response import get_threads
+    contacts_by_agency = get_contacts_by_agency()
+    return dict((agency, contacts_by_agency[agency]) for agency\
+        in contacts_by_agency if not get_threads(agency))
+      
+
+
 def prep_agency_drafts(contacts_by_agency=unsent_agency_contacts()):
     """
     contacts_by_agency = {agency:[email_addresses]}
@@ -62,13 +67,6 @@ def prep_agency_drafts(contacts_by_agency=unsent_agency_contacts()):
     else:
         print('skipping')
 
-def unsent_agency_contacts():
-    from report.response import get_threads
-    contacts_by_agency = get_contacts_by_agency
-    return dict((agency, contacts_by_agency[agency]) for agency\
-        in contacts_by_agency if not get_threads(agency))
-      
-
 def sanity_check(drafts):
     """
     look before you leap
@@ -79,7 +77,7 @@ def sanity_check(drafts):
     return verify in ['Y','y']
 
 def load_foia_text():
-    return '\r\n'.join([p.text for p in Document(docx=foia_doc).paragraphs])    
+    return '\r\n'.join([p.text for p in opendocx(docx=foia_doc).paragraphs])    
 
 def compose_draft(body,subject,contacts):
     try:
