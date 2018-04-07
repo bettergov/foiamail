@@ -178,6 +178,7 @@ def delete_labels(label_ids=None):
 
 def create_labels(labels=[]):
     if not labels:
+        labels += ['agency']
         labels += ['agency/' + agency for agency in agencies] # see https://github.com/mattkiefer/gm/issues/1 
         labels += statuses
         import pdb; pdb.set_trace()
