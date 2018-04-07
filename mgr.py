@@ -7,8 +7,8 @@ from sys import argv
 from report import response
 from att import gm
 cron_label = '--label' in argv
-cron_report = '--report' in argv
 cron_atts = '--atts' in argv
+cron_report = '--report' in argv
 
 # contacts
 def init_contacts(delete=False):

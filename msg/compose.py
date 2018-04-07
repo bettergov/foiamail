@@ -1,7 +1,7 @@
 from time import sleep
 from log import log
 from auth import auth
-from docx import opendocx 
+from docx import Document 
 from contacts.contacts import get_contacts_by_agency 
 from msg.utils import agency_slug
 from msg.label import label_agency
@@ -41,10 +41,12 @@ def unsent_agency_contacts():
       
 
 
-def prep_agency_drafts(contacts_by_agency=unsent_agency_contacts()):
+def prep_agency_drafts(contacts_by_agency=[]):
     """
     contacts_by_agency = {agency:[email_addresses]}
     """
+    if not contacts_by_agency:
+        contacts_by_agency = unsent_agency_contacts()
     # first delete existing drafts
     delete_drafts()
     # then create new drafts
@@ -77,7 +79,7 @@ def sanity_check(drafts):
     return verify in ['Y','y']
 
 def load_foia_text():
-    return '\r\n'.join([p.text for p in opendocx(docx=foia_doc).paragraphs])    
+    return '\r\n'.join([p.text for p in Document(docx=foia_doc).paragraphs])    
 
 def compose_draft(body,subject,contacts):
     try:

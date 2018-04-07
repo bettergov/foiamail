@@ -1,4 +1,4 @@
-docx==0.2.4
+python-docx==0.8.6
 appdirs==1.4.3
 backports.shutil-get-terminal-size==1.0.0
 decorator==4.0.11

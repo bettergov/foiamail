@@ -65,10 +65,14 @@ def get_atts(msg):
 
 def check_agency_status(msg):
     hashtag = check_agency_hashtag(msg)
-    sender_agency = check_sender_agency(msg)
-    return hashtag or sender_agency
+    import ipdb; ipdb.set_trace()
+    # sender_agency = check_sender_agency(msg)
+    return hashtag
+
 
 def check_sender_agency(msg):
+    # deprecated
+    return
     # todo: check for multiple matches ie double agents
     sender = [x for x in msg['payload']['headers'] if x['name'] == 'From'][0]['value'] 
     matching_agencies = [agency for agency in contacts_by_agency if sender in contacts_by_agency[agency]]
