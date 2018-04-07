@@ -65,7 +65,6 @@ def get_atts(msg):
 
 def check_agency_status(msg):
     hashtag = check_agency_hashtag(msg)
-    import ipdb; ipdb.set_trace()
     # sender_agency = check_sender_agency(msg)
     return hashtag
 
@@ -109,7 +108,11 @@ def recursive_match_scan(em):
             # this return should bubble up to the top layer of recursion
 
 def split_and_check(text):
-    for chunk in base64.urlsafe_b64decode(text).split('#'):
+    try:
+        text = base64.urlsafe_b64decode(text)
+    except:
+        pass
+    for chunk in text.split('#'):
         if '#' + chunk + '#' in slugs:
             return chunk
     for chunk in text.split('#'):
