@@ -66,6 +66,6 @@ def delete_contacts(cs=[]):
     if not cs:
         dac = raw_input('delete ALL contacts? [y/N]')
         if dac.lower == 'y':
-            cs = contacts
+            cs = get_contacts()
     for c in cs:
         gd_client.Delete(c.GetEditLink().href,force=True)

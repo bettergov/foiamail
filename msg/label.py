@@ -181,7 +181,6 @@ def create_labels(labels=[]):
         labels += ['agency']
         labels += ['agency/' + agency for agency in agencies] # see https://github.com/mattkiefer/gm/issues/1 
         labels += statuses
-        import pdb; pdb.set_trace()
     for label in labels:
         print 'creating label', label
         service.users().labels().create(userId='me',body=make_label(label)).execute()
