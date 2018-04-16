@@ -53,6 +53,13 @@ cat NewKey.pub | ssh -i OriginalKey.pem user@amazon-instance "cat >> .ssh/author
 
 
 ## os requirements
+First, set the timezone.
+```
+sudo mv /etc/localtime /etc/localtime.bk
+sudo echo "America/Chicago" > /etc/timezone
+sudo dpkg-reconfigure --frontend noninteractive tzdata
+```
+
 ```
 sudo apt install python-setuptools 
 sudo easy_install pip  

@@ -24,6 +24,8 @@ Install a crontab to run the following tasks at regular intervals:
 - `mgr.py --atts`, to migrate GMail attachments to Drive (nightly)
 - `mgr.py --report`, to generate a status report of agency responses in Google Sheets (nightly, after attachments migrate)
 
+This is a good time to double-check the server timezone is set to America/Chicago. See [technical docs](docs/technical.md).
+
 # ongoing manual work
 _Verify draft FOIA messages before sending_  
 
