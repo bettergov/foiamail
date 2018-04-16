@@ -9,7 +9,7 @@ from email.mime.text import MIMEText
 import base64
 
 ### START CONFIG ###
-foia_doc       = 'msg/payroll-foia2017.docx'
+foia_doc       = 'msg/payroll-foia-2018.docx'
 interval       = 1 # seconds
 subject        = 'Payroll FOIA | '
 me             = 'me'
@@ -107,17 +107,17 @@ def sender(draft):
         thread = service.users().threads().get(userId='me',id=sent['threadId']).execute()
         msg = thread['messages'][0]
         label_agency(msg,agency)
+    	print('sent',sent)
     except Exception, e:
         print('draft.id',draft['id'],'raised exception')
         log.log_data('msg',[{'draft_id':draft['id'],'agency':agency,'exception':e}])
-    print('sent',sent)
     sleep(interval)
 
 def delete_drafts(draft_ids=[]):
     if not draft_ids:
         # check for existence of drafts
         drafts = get_drafts()
-        draft_ids = [x['id'] for x in drafts if type(drafts) == 'list'] #hack
+        draft_ids = [x['id'] for x in drafts if type(drafts) == list] #hack
     print('len(draft_ids)',len(draft_ids))
     dd = raw_input('existing drafts found ... delete ?[y/N]')
     if dd.lower() == 'y':

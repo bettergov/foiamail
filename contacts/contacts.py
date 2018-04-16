@@ -8,9 +8,9 @@ from log import log
 
 ### START CONFIG ###
 #infile_path      = 'contacts/bga_contacts.csv'
-infile_path      = 'contacts/test-contacts.csv'
+infile_path      = 'contacts/contacts.csv'
 test_infile_path = 'contacts/test-contacts.csv'
-test             = True
+test             = False
 ### END CONFIG ###
 if test: infile_path = test_infile_path
 gd_client = auth.get_gd_client()

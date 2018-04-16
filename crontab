@@ -20,7 +20,6 @@
 # For more information see the manual pages of crontab(5) and cron(8)
 # 
 # m h  dom mon dow   command
-*/15 7-19 * * * cd /home/matt/projects/bga/gm && . bin/activate && python mgr.py --label > /home/matt/projects/bga/gm/log/logs/cron-label
-0 5 * * * cd /home/matt/projects/bga/gm && . bin/activate && python mgr.py --report > /home/matt/projects/bga/gm/log/logs/cron-report
-50 6-20 * * * cd /home/matt/projects/bga/gm && . bin/activate && python mgr.py --atts > /home/matt/projects/bga/gm/log/logs/cron-atts
-
+*/15 7-19 * * * cd /home/ubuntu/foiamail && . bin/activate && python mgr.py --label > /home/ubuntu/foiamail/log/logs/cron-label
+0 5 * * * cd /home/ubuntu/foiamail && . bin/activate && python mgr.py --report > /home/ubuntu/foiamail/log/logs/cron-report
+50 6-20 * * * cd /home/ubuntu/foiamail && . bin/activate && python mgr.py --atts > /home/ubuntu/foiamail/log/logs/cron-atts

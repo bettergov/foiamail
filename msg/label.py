@@ -12,7 +12,7 @@ from datetime import datetime
 ### START CONFIG ###
 # TODO put these in a project config file
 att_exts = ['txt','csv','xls','xlsx','pdf'] 
-statuses = ['*unidentified','*responded','*attachment','*done']
+statuses = ['*unidentified','*responded','*attachment','*done','*NA']
 ### END CONFIG ###
 
 service = auth.get_service()
@@ -22,17 +22,22 @@ slugs = [agency_slug(agency) for agency in agencies]
 labels = service.users().labels().list(userId='me').execute()['labels'] 
 agency_label_ids = [x['id'] for x in labels if 'agency' in x['name']]
 
-def msgs_job(msgs=None):
+def msgs_job(msgs=None,date=None):
     if not msgs:
-        msgs = select_unlabeled_msgs()
+        msgs = select_unlabeled_msgs(date=date)
     msg_label_queue = []
     for msg in msgs:
         msg_label_queue.append(check_labels(msg))
     update_labels(msg_label_queue)
 
-def select_unlabeled_msgs():
-    today = datetime.now().strftime('%Y/%m/%d')
-    query = 'after:' + today
+def select_unlabeled_msgs(date=None):
+    """
+    e.g. date: datetime.datetime.strptime('2018/04/13','%Y/%m/%d')
+    """
+    if not date: 
+        date = datetime.now()
+    date = date.strftime('%Y/%m/%d')
+    query = 'after:' + date
     return service.users().messages().list(userId='me',q=query).execute()['messages']
 
 def check_labels(msg):
@@ -137,7 +142,10 @@ def update_labels(msg_queue):
             #import ipdb; ipdb.set_trace()
 
 def label_agency(msg,agency):
-    label_id = lookup_label('agency/' + agency) # see https://github.com/mattkiefer/gm/issues/1
+    if agency == '*unidentified':
+        label_id = lookup_label('*unidentified')
+    else:
+        label_id = lookup_label('agency/' + agency) # see https://github.com/mattkiefer/gm/issues/1
     #TODO 2nd check if agency lookup
     if label_id:
         service.users().messages().modify(userId='me', id=msg['id'],body={"addLabelIds":[label_id]}).execute()
@@ -154,9 +162,9 @@ def label_status(msg,status):
 def get_thread_agency_label(msg):
     t = service.users().threads().get(userId='me',id=msg['threadId']).execute()
     for m in t['messages']:
-        for l in m['labelIds']:
-            if l in agencies:
-                return l
+        for lid in m['labelIds']:
+            if lid in agency_label_ids:
+                return [label['name'] for label in labels if label['id'] == lid][0]
 
 def lookup_label(label_text):
     #matches = [label for label in labels if label['name'].replace(' ','') == label_text]
