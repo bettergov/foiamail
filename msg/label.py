@@ -69,10 +69,14 @@ def get_atts(msg):
     return atts
 
 def check_agency_status(msg):
-    hashtag = check_agency_hashtag(msg)
+    slug = check_agency_hashtag(msg)
     # sender_agency = check_sender_agency(msg)
-    return hashtag
+    return lookup_agency_by_slug(slug)
 
+def lookup_agency_by_slug(slug):
+    candidates = [x for x in agencies if x.replace(' ','') == slug]
+    if candidates:
+        return candidates[0]
 
 def check_sender_agency(msg):
     # deprecated
