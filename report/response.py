@@ -13,7 +13,7 @@ from att.drive import check_if_drive
 outfile_path = 'report/reports/response.csv'
 outfile_headers = ['agency','status','threads']
 sheet_filename = 'agency_response_log'
-statuses = ['SENT','*responded','*attachment','*done','*N/A']
+statuses = ['SENT','*responded','*attachment','*done','*NA']
 ### END CONFIG ###
 service = get_service()
 drive_service = get_service(type='drive')
@@ -69,8 +69,8 @@ def get_status(threads,agency):
     # TODO: loop thru statuses list (in desc order of precedence)
     if check_if_drive(agency):
         return 'shipped'
-    elif '*N/A' in agency_statuses:
-        return 'N/A'
+    elif '*NA' in agency_statuses:
+        return 'NA'
     elif '*done' in agency_statuses:
         return 'done'
     elif '*attachment' in agency_statuses:
