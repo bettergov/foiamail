@@ -27,7 +27,7 @@ Install a crontab to run the following tasks at regular intervals:
 This is a good time to double-check the server timezone is set to America/Chicago. See [technical docs](docs/technical.md).
 
 # ongoing manual work
-_Verify draft FOIA messages before sending_  
+_Verify draft FOIA messages before sending, including message count, contents and recipients_  
 
 Routine checklist for operating FOIAMail:
 - Monitor incoming email regularly:
