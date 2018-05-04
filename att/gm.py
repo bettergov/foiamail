@@ -16,7 +16,7 @@ def roll_thru():
     for agency in agencies:
         try:
             threads = get_threads(agency)
-            if not check_if_drive(agency) and check_if_done(threads,agency): 
+            if not check_if_drive(agency.replace("'","")) and check_if_done(threads,agency): # no apostrophes allowed 
                 # only proceed if agency is done, has atts and not already in drive
                 atts = get_agency_atts(threads)
                 if atts:
