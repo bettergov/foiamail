@@ -67,7 +67,7 @@ def get_status(threads,agency):
                 if label['name'] in statuses:
                     agency_statuses.add(label['name'])
     # TODO: loop thru statuses list (in desc order of precedence)
-    if check_if_drive(agency):
+    if check_if_drive(agency.replace("'",""): # no apostrophes allowed
         return 'shipped'
     elif '*NA' in agency_statuses:
         return 'NA'
@@ -83,7 +83,7 @@ def get_status(threads,agency):
         return 'no status available'
 
 def get_thread_urls(threads):
-    return '\r\n'.join(['https://mail.google.com/mail/u/2/#inbox/' + thread['id'] for thread in threads])
+    return '\r\n'.join(['https://mail.google.com/mail/u/0/#inbox/' + thread['id'] for thread in threads])
 
 ### DRIVE ###
 

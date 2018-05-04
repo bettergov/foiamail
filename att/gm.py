@@ -21,7 +21,7 @@ def roll_thru():
                 atts = get_agency_atts(threads)
                 if atts:
                     print agency
-                    drive_folder = make_drive_folder(agency,atts_drive_folder)
+                    drive_folder = make_drive_folder(agency.replace("'",""),atts_drive_folder) # no apostrophes allowed
                     for att in atts:
                         path = download_buffer_file(att)
                         upload_to_drive(att, drive_folder)
