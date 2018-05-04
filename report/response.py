@@ -67,7 +67,7 @@ def get_status(threads,agency):
                 if label['name'] in statuses:
                     agency_statuses.add(label['name'])
     # TODO: loop thru statuses list (in desc order of precedence)
-    if check_if_drive(agency.replace("'",""): # no apostrophes allowed
+    if check_if_drive(agency.replace("'","")): # no apostrophes allowed
         return 'shipped'
     elif '*NA' in agency_statuses:
         return 'NA'
