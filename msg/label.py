@@ -11,7 +11,7 @@ from datetime import datetime
 
 ### START CONFIG ###
 # TODO put these in a project config file
-att_exts = ['txt','csv','xls','xlsx','pdf'] 
+att_exts = ['txt','csv','xls','xlsx','pdf','xlsm','xlt','ods','xlsb'] 
 statuses = ['*unidentified','*responded','*attachment','*done','*NA']
 ### END CONFIG ###
 
