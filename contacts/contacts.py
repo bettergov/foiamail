@@ -1,3 +1,10 @@
+"""
+this module
+- loads contacts
+- returns contacts by agency:
+	{agency:[contacts]}
+  which produces an agency list
+"""
 import csv
 from auth import auth
 import atom.data
@@ -12,10 +19,20 @@ infile_path      = 'contacts/contacts.csv'
 test_infile_path = 'contacts/test-contacts.csv'
 test             = False
 ### END CONFIG ###
+
+# test allows you to send sample FOIAs to test email addresses
+# ********
+# WARNING! google contacts API will cache contacts ...
+# ********
+# make sure to verify test contacts are deleted when prepping for production
+# https://github.com/mattkiefer/foiamail/issues/29
 if test: infile_path = test_infile_path
 gd_client = auth.get_gd_client()
 
 def load_contacts():
+    """
+    loads contacts via api
+    """
     raw_input('creating contacts ... hit enter')
     for contact in import_contacts():
         try:
@@ -32,9 +49,15 @@ def load_contacts():
             log.log_data('contact',contact)
 
 def import_contacts():
+    """
+    reads contacts from file
+    """
     return [x for x in csv.DictReader(open(infile_path))]
 
 def get_contacts(max=2000):
+    """
+    requests all contacts from api
+    """
     query = gdata.contacts.client.ContactsQuery()
     query.max_results = max
     return gd_client.GetContacts(query=query).entry
@@ -56,13 +79,22 @@ def get_contacts_by_agency(contacts=get_contacts()):
     return agency_contacts
 
 def get_contact_emails():
+    """
+    returns email address of each contact
+    """
     return [contact.email[0].address for contact in contacts]
 
 def already_a_contact(email):
+    """
+    checks if contact already exists
+    """
     contact_emails = get_contact_emails()
     return email in contact_emails
 
 def delete_contacts(cs=[]):
+    """
+    don't think this works but you can do it from the UI
+    """
     if not cs:
         dac = raw_input('delete ALL contacts? [y/N]')
         if dac.lower == 'y':
