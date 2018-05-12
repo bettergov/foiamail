@@ -1,4 +1,9 @@
 """
+writes a response report to Drive with:
+    - agency name
+    - status
+    - link to thread
+
 TODO: 
 build dict of label ids, 
 names for status labels 
@@ -20,18 +25,28 @@ drive_service = get_service(type='drive')
 sheets_service = get_service(type='sheets')
 
 def init(report_agencies=None):
+    """
+    starts response report
+    """
     if not report_agencies: report_agencies=agencies #for debugging
     outfile, outcsv = setup_outfile()
     roll_thru(report_agencies,outcsv)
     outfile.close()
 
 def setup_outfile():
+    """
+    creates the local file for writing the report to csv
+    """
     outfile = open(outfile_path,'w')
     outcsv = csv.DictWriter(outfile,outfile_headers)
     outcsv.writeheader()
     return outfile, outcsv
 
 def roll_thru(agencies,outcsv):
+    """
+    collects agency statuses and thread urls,
+    writing results to file
+    """
     rows = []
     for agency in agencies:
         print agency
@@ -50,6 +65,9 @@ def roll_thru(agencies,outcsv):
     write_to_log(sorted_rows)
     
 def get_threads(agency):
+    """
+    gets all threads labeled as specified agency
+    """
     agency_label_id = lookup_label('agency/' + agency)
     if agency_label_id:
         try:
@@ -58,6 +76,10 @@ def get_threads(agency):
             print agency, e
 
 def get_status(threads,agency):
+    """
+    gets the 'highest' status
+    found in the specified threads
+    """
     agency_statuses = set()
     for t in threads:
         thread = service.users().threads().get(userId='me',id=t['id']).execute()
@@ -83,11 +105,18 @@ def get_status(threads,agency):
         return 'no status available'
 
 def get_thread_urls(threads):
+    """
+    gets urls to each thread in list
+    TODO: pass agency label instead and return link to label search
+    """
     return '\r\n'.join(['https://mail.google.com/mail/u/0/#inbox/' + thread['id'] for thread in threads])
 
 ### DRIVE ###
 
 def get_or_create_log(name=sheet_filename):
+    """
+    gets or creates the agency response log in Drive
+    """
     log_query = drive_service.files().list(q="name='" + sheet_filename + "'").execute().get('files')
     if log_query:
         log = log_query[0]
@@ -97,6 +126,10 @@ def get_or_create_log(name=sheet_filename):
     return log
 
 def write_to_log(data):
+    """
+    takes the locally written agency response log csv
+    and writes to Sheets file as specified
+    """
     # get/create and clear
     log = get_or_create_log()
     sheets_service.spreadsheets().values().clear(spreadsheetId=log['id'],range='Sheet1',body={}).execute()
