@@ -1,3 +1,7 @@
+"""
+downloads gmail atts
+"""
+
 import base64, os
 from auth.auth import get_service
 from msg.label import agencies, get_atts
@@ -12,6 +16,18 @@ buffer_path = '/tmp/'
 gmail_service = get_service(type='gmail')
 
 def roll_thru():
+    """
+    controller function rolls through each agency:
+    - checks if already filed in Drive
+    - checks if labeled done
+    ... if neither:
+    - makes Drive folder
+    - downloads buffer file to this server
+    - uploads file to Drive folder
+    - deleteds buffer file
+
+    TODO: optimize by check_if_drive first before getting threads
+    """
     atts_drive_folder = get_or_create_atts_folder()
     for agency in agencies:
         try:
@@ -32,9 +48,19 @@ def roll_thru():
             print agency,'failed',e
 
 def check_if_done(threads,agency):
+    """
+    checks if this agency's threads 
+    include any messages labeled 'done'
+    """
     return get_status(threads,agency) == 'done'
 
 def get_agency_atts(threads):
+    """
+    given a list of threads,
+    iterates through messages,
+    finds attachments
+    and appends att data to atts list
+    """
     atts = []
     for thread in threads:
         for msg in gmail_service.users().threads().get(\
@@ -44,6 +70,11 @@ def get_agency_atts(threads):
     return atts
 
 def download_buffer_file(att):  
+    """
+    downloads specified att to
+    buffer file 
+    and returns path
+    """
     attachment = gmail_service.users().messages().attachments().get(\
             id=att['att_id'],messageId=att['msg_id'],userId='me').execute()
     file_data = base64.urlsafe_b64decode(attachment['data'].encode('UTF-8'))
