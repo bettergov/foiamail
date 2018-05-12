@@ -1,3 +1,7 @@
+"""
+creates and sends
+foia messages
+"""
 from time import sleep
 from log import log
 from auth import auth
@@ -19,9 +23,20 @@ service = auth.get_service()
 
 def distribute(send=False):
     """
+    prepares drafts for each agency
+    and sends if specified and tests pass
+
+    a draft is a dict containing
+    - the gmail draft object
+    - the name of the agency (for labeling)
+    i.e.:
     draft = [{'agency': agency_name,'draft': draft}]
+    
+    TODO: includle a recovery function to get unsent drafts 
+    - by agency
+    OR
+    - by unsent status
     """
-    #TODO: recovery function to get unsent drafts *by agency*
     drafts = prep_agency_drafts()
     if send and sanity_check(drafts):
     	ready = raw_input('drafts created. inspect and type "send" to distribute')
@@ -33,7 +48,13 @@ def distribute(send=False):
         else:
             print('aborting')
 
+
 def unsent_agency_contacts():
+    """
+    gets 
+    contacts by agency
+    for all unsent agencies
+    """
     from report.response import get_threads
     contacts_by_agency = get_contacts_by_agency()
     return dict((agency, contacts_by_agency[agency]) for agency\
@@ -43,7 +64,10 @@ def unsent_agency_contacts():
 
 def prep_agency_drafts(contacts_by_agency=[]):
     """
-    contacts_by_agency = {agency:[email_addresses]}
+    preps drafts for unsent agencies, with: 
+    - agency name appended to subject
+    - agency slug appended to body
+    - agency name attached to draft list for labeling
     """
     if not contacts_by_agency:
         contacts_by_agency = unsent_agency_contacts()
@@ -79,9 +103,17 @@ def sanity_check(drafts):
     return verify in ['Y','y']
 
 def load_foia_text():
+    """
+    reads foia template from docx file as config'd
+    """
     return '\r\n'.join([p.text for p in Document(docx=foia_doc).paragraphs])    
 
 def compose_draft(body,subject,contacts):
+    """
+    creates draft
+    from message object
+    and returns it
+    """
     try:
         message = compose_message(body,subject,contacts)
         #return service.users().drafts().create(userId=me, body=message).execute()    
@@ -92,6 +124,11 @@ def compose_draft(body,subject,contacts):
         print e
 
 def compose_message(body,subject,contacts):
+    """
+    composes message
+    using message text, subject, contacts
+    and returns it encoded
+    """
     message            = MIMEText(body)
     message['subject'] = subject
     message['from']    = me
@@ -100,6 +137,10 @@ def compose_message(body,subject,contacts):
     return {'raw': base64.urlsafe_b64encode(message.as_string())}
 
 def sender(draft):
+    """
+    sends drafts with specified sleep interval,
+    logs exceptions
+    """
     agency = draft['agency']
     draft = draft['draft']
     try:
@@ -109,11 +150,14 @@ def sender(draft):
         label_agency(msg,agency)
     	print('sent',sent)
     except Exception, e:
-        print('draft.id',draft['id'],'raised exception')
+        print('draft.id',draft['id'],'raised exception: ',e)
         log.log_data('msg',[{'draft_id':draft['id'],'agency':agency,'exception':e}])
     sleep(interval)
 
 def delete_drafts(draft_ids=[]):
+    """
+    this can be handled via UI
+    """
     if not draft_ids:
         # check for existence of drafts
         drafts = get_drafts()
@@ -127,6 +171,10 @@ def delete_drafts(draft_ids=[]):
             service.users().drafts().delete(userId='me',id=draft_id).execute()
 
 def get_drafts():
+    """
+    gets all drafts.
+    only called by delete_drafts, may be unnecessary
+    """
     drafts = service.users().drafts().list(userId='me',maxResults=2000).execute()
     if 'drafts' in drafts.keys(): 
         drafts = drafts['drafts']

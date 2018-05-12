@@ -1,6 +1,6 @@
 """
-todo:
-    batch label creation
+creates labels as config'd for initial startup,
+handles labeling automation as scheduled
 """
 from log import log
 from contacts import contacts
@@ -10,7 +10,7 @@ from msg.utils import agency_slug
 from datetime import datetime
 
 ### START CONFIG ###
-# TODO put these in a project config file
+# acceptable types of attachment for labeling and shipping purposes
 att_exts = ['txt','csv','xls','xlsx','pdf','xlsm','xlt','ods','xlsb'] 
 statuses = ['*unidentified','*responded','*attachment','*done','*NA']
 ### END CONFIG ###
@@ -23,6 +23,9 @@ labels = service.users().labels().list(userId='me').execute()['labels']
 agency_label_ids = [x['id'] for x in labels if 'agency' in x['name']]
 
 def msgs_job(msgs=None,date=None):
+    """
+    control function to handle label automation
+    """
     if not msgs:
         msgs = select_unlabeled_msgs(date=date)
     msg_label_queue = []
@@ -32,6 +35,9 @@ def msgs_job(msgs=None,date=None):
 
 def select_unlabeled_msgs(date=None):
     """
+    this is maybe misnamed. 
+    selects all messages after specified date (at midnight).
+    defaults to today's messages
     e.g. date: datetime.datetime.strptime('2018/04/13','%Y/%m/%d')
     """
     if not date: 
@@ -41,6 +47,12 @@ def select_unlabeled_msgs(date=None):
     return service.users().messages().list(userId='me',q=query).execute()['messages']
 
 def check_labels(msg):
+    """
+    given a message, checks:
+    - request status
+    - agency name
+    ... and returns dict for labeling
+    """
     try:
         msg = service.users().messages().get(id=msg['id'],userId='me').execute()
     except Exception, e:
@@ -51,6 +63,11 @@ def check_labels(msg):
     return {'msg':msg,'req_status':req_status,'agency':agency}
 
 def check_req_status(msg):
+    """
+    for incoming messages, checks if
+    it has an attachment or not,
+    then returns as '*attachment' or '*responded'
+    """
     em_from = [x for x in msg['payload']['headers'] if x['name'] == 'From'][0]['value']
     if em_from.split('@')[-1] == 'bettergov.org':
         return
@@ -59,6 +76,12 @@ def check_req_status(msg):
     return '*responded'
 
 def get_atts(msg):
+    """
+    scans a message's attachments
+    and checks if atts have acceptable extensions
+    as configured.
+    returns accepted atts
+    """
     # list len evals to bool
     atts = []
     if 'parts' in msg['payload'].keys():
@@ -69,17 +92,34 @@ def get_atts(msg):
     return atts
 
 def check_agency_status(msg):
+    """
+    checks to see if message contains an agency slug
+    (i.e., char string between two # hashtags)
+    and, if so, looks up to see what if any agency it belongs to.
+    returns agency name
+    """
     slug = check_agency_hashtag(msg)
     # sender_agency = check_sender_agency(msg)
     return lookup_agency_by_slug(slug)
 
 def lookup_agency_by_slug(slug):
+    """
+    returns the name of the agency
+    belonging to the specified slug,
+    if any match
+    """
     candidates = [x for x in agencies if x.replace(' ','') == slug]
     if candidates:
         return candidates[0]
 
 def check_sender_agency(msg):
-    # deprecated
+    """
+    deprecated.
+    originally designed to help lookup the agency by the sender.
+    this is problematic because occasionally a contact sends on behalf of multiple agencies.
+    keeping this code for reference but it's not advisable to implement, 
+    i.e. could result in false matches.
+    """
     return
     # todo: check for multiple matches ie double agents
     sender = [x for x in msg['payload']['headers'] if x['name'] == 'From'][0]['value'] 
@@ -87,7 +127,12 @@ def check_sender_agency(msg):
     if matching_agencies:
         return matching_agencies[0]
 
+
 def check_agency_hashtag(msg):
+    """
+    reads messages, scanning for hashtag-delimited slugs.
+    supports multipart and non-multipart messages
+    """
     try:
         msg = service.users().messages().get(id=msg['id'],userId='me',format='raw').execute()
         body = base64.urlsafe_b64decode(msg['raw'].encode('ASCII'))
@@ -116,7 +161,13 @@ def recursive_match_scan(em):
             return match
             # this return should bubble up to the top layer of recursion
 
+
 def split_and_check(text):
+    """
+    given a scannable string,
+    looks for hashtag-delimited text
+    and returns it
+    """
     try:
         text = base64.urlsafe_b64decode(text)
     except:
@@ -129,6 +180,12 @@ def split_and_check(text):
             return chunk
 
 def update_labels(msg_queue):
+    """
+    labels messages by
+    - agency
+    - status
+    as specified
+    """
     for x in msg_queue:
         try:
             msg = x['msg']
@@ -146,6 +203,10 @@ def update_labels(msg_queue):
             #import ipdb; ipdb.set_trace()
 
 def label_agency(msg,agency):
+    """
+    specifies agency msg should get (or *unidentified)
+    and applies it
+    """
     if agency == '*unidentified':
         label_id = lookup_label('*unidentified')
     else:
@@ -155,6 +216,10 @@ def label_agency(msg,agency):
         service.users().messages().modify(userId='me', id=msg['id'],body={"addLabelIds":[label_id]}).execute()
 
 def label_status(msg,status):
+    """
+    specifies status label msg should get
+    and applies it
+    """
     status_label = lookup_label(status)
     #TODO 3rd check if agency assigned,
     # and if status is correct
@@ -164,6 +229,11 @@ def label_status(msg,status):
         service.users().messages().modify(userId='me', id=msg['id'],body={"addLabelIds":[status_label]}).execute()
 
 def get_thread_agency_label(msg):
+    """
+    checks if thread has agency label
+    on any messages,
+    if so, returns it
+    """
     t = service.users().threads().get(userId='me',id=msg['threadId']).execute()
     for m in t['messages']:
         for lid in m['labelIds']:
@@ -171,12 +241,20 @@ def get_thread_agency_label(msg):
                 return [label['name'] for label in labels if label['id'] == lid][0]
 
 def lookup_label(label_text):
+    """
+    returns the label id
+    given the label name
+    for api lookup purposes
+    """
     #matches = [label for label in labels if label['name'].replace(' ','') == label_text]
     matches = [label for label in labels if label['name'] == label_text]
     if matches:
         return matches[0]['id']
 
 def delete_labels(label_ids=None):
+    """
+    deletes labels
+    """
     if not label_ids:     
         dal = raw_input('delete ALL user labels? *this is a first-time setup thing* [y/N]')
         if dal.lower() == 'y':
@@ -189,6 +267,11 @@ def delete_labels(label_ids=None):
         service.users().labels().delete(userId='me',id=label_id).execute()
 
 def create_labels(labels=[]):
+    """
+    creates labels based on 
+    - agencies (defined by contacts)
+    - statuses (defined in configs)
+    """
     if not labels:
         labels += ['agency']
         labels += ['agency/' + agency for agency in agencies] # see https://github.com/mattkiefer/gm/issues/1 
@@ -198,6 +281,11 @@ def create_labels(labels=[]):
         service.users().labels().create(userId='me',body=make_label(label)).execute()
 
 def make_label(label_text):
+    """
+    returns a label object
+    conforming to api specs
+    given a name
+    """
     return {'messageListVisibility': 'show',
             'name': label_text,
             'labelListVisibility': 'labelShow'}
