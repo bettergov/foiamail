@@ -26,25 +26,37 @@ def distribute(send=False):
     prepares drafts for each agency
     and sends if specified and tests pass
 
-    a draft is a dict containing
-    - the gmail draft object
-    - the name of the agency (for labeling)
-    i.e.:
-    draft = [{'agency': agency_name,'draft': draft}]
-    
-    TODO: includle a recovery function to get unsent drafts 
-    - by agency
-    OR
-    - by unsent status
+    due to potential for sending failure,
+    this function will attempt to retry
+    sending unsent drafts under the following conditions:
+    - unsent agencies exist
+    - previous attempts successfully sent 1 or more drafts
+    *** retry logic is untested ***
     """
+    retry = True
     drafts = prep_agency_drafts()
     if send and sanity_check(drafts):
     	ready = raw_input('drafts created. inspect and type "send" to distribute')
         if ready.lower() == 'send':
-            for draft in drafts:
-                print('sending',draft) 
-                sender(draft)
-            print('distribution complete.')
+            while retry:
+                original_draft_len = len(drafts)
+                for draft in drafts:
+                    print('sending',draft) 
+                    sender(draft)
+                # make sure everything sent, or else retry
+                drafts = prep_agency_drafts()
+                if drafts and len(drafts) < original_draft_len:
+                    print(len(drafts),'drafts remaining ... retrying')
+                    continue
+                elif not drafts:
+                    retry = False
+                    print('distribution complete.')
+                elif drafts and len(drafts) == original_draft_len:
+                    # drafts aren't sending, it's a lost cause. avoid infinite loop
+                    retry = False
+                    print('distribution incomplete:', len(drafts),'unsent')
+                else:
+                    retry = False
         else:
             print('aborting')
 
@@ -68,6 +80,13 @@ def prep_agency_drafts(contacts_by_agency=[]):
     - agency name appended to subject
     - agency slug appended to body
     - agency name attached to draft list for labeling
+
+    a draft is a dict containing
+    - the gmail draft object
+    - the name of the agency (for labeling)
+    i.e.:
+    draft = [{'agency': agency_name,'draft': draft}]
+    
     """
     if not contacts_by_agency:
         contacts_by_agency = unsent_agency_contacts()
