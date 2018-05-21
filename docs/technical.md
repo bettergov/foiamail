@@ -65,6 +65,8 @@ sudo dpkg-reconfigure --frontend noninteractive tzdata
 sudo apt install python-setuptools 
 sudo easy_install pip  
 sudo pip install virtualenv 
+sudo apt-get update
+sudo apt-get install python-dev gcc 
 ```
 
 ## code requirements
@@ -77,7 +79,7 @@ git clone https://github.com/mattkiefer/foiamail.git
 cd foiamail
 virtualenv ./
 . bin/activate
-pip install requirements
+pip install -r requirements.txt
 ```
 
 ## google requirements
