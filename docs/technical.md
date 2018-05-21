@@ -50,8 +50,6 @@ cat NewKey.pub | ssh -i OriginalKey.pem user@amazon-instance "cat >> .ssh/author
 ssh -i NewKey.pem user@aws-instance
 ```
 
-
-
 ## os requirements
 First, set the timezone.
 ```bash
@@ -83,6 +81,9 @@ pip install -r requirements.txt
 ```
 
 ## google requirements
+### create fresh google account
+We recommend creating a new Google account. The app iterates through all contacts when drafting FOIAs, so an initially empty contacts list guarantees that no stray emails get loose.
+
 ### register google application
 https://console.cloud.google.com/home/dashboard  
 create project
@@ -133,11 +134,9 @@ test_cred()
 ```
 
 # importing/updating contacts
-The `contacts` module function, `load_contacts()`, takes a specified csv file of contacts (with field headers 'first name','last name','agency' and 'email') and loads them into the user's Google Contacts.  
+The app handles contacts through the [Gmail Contacts screen](https://mail.google.com/mail/u/0/#contacts). Read Google's own documentation for [how to import contacts](https://support.google.com/contacts/answer/1069522?hl=en&visit_id=1-636625309780616904-2128193528&rd=3).
 
-These contacts are later accessed by GMail when generating FOIA requests.  
-
-Verify contacts are loaded via the [GMail Contacts screen](https://mail.google.com/mail/u/0/#contacts)
+Note that for a contact to be recognized by the app, the contact needs to have an **organization** filled in. The app will draft messages for **all** contacts with organizations.
 
 # composing/sending messages
 Once contacts are loaded, FOIAs messages may be drafted and sent using the `msg` module.
