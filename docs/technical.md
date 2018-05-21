@@ -27,7 +27,7 @@ Note the following:
 
 With this information, we can connect to the EC2 instance using SSH.
 ```bash
-    ssh -i PATH/MY_KEY_PAIR.pem user@aws-instance
+ssh -i PATH/MY_KEY_PAIR.pem user@aws-instance
 ```
 
 You can use a command-line tool like [ssh-agent](https://www.ssh.com/ssh/agent) to manage your SSH keys.
@@ -47,34 +47,34 @@ cat NewKey.pub | ssh -i OriginalKey.pem user@amazon-instance "cat >> .ssh/author
 ```
 #### 3. testing the new key
 ```bash
-    ssh -i NewKey.pem user@aws-instance
+ssh -i NewKey.pem user@aws-instance
 ```
 
 
 
 ## os requirements
 First, set the timezone.
-```
+```bash
 sudo mv /etc/localtime /etc/localtime.bk
 sudo cp /usr/share/zoneinfo/America/Chicago /etc/localtime
 # Use the following to reset to UTC
 sudo dpkg-reconfigure --frontend noninteractive tzdata
 ```
 
-```
+```bash
 sudo apt install python-setuptools 
 sudo easy_install pip  
 sudo pip install virtualenv 
 ```
 
 ## code requirements
-```
+```bash
 git clone https://github.com/mattkiefer/foiamail.git
 ```
 
 ## python requirements
-```
-cd foiamachine
+```bash
+cd foiamail
 virtualenv ./
 . bin/activate
 pip install requirements
@@ -108,7 +108,7 @@ It might take a few minutes.
 ### obtain credentials.dat
 Activate the virtual environment and open a python console:
 ```bash
-cd foiamachine
+cd foiamail
 . bin/activate
 python
 ```
@@ -184,7 +184,7 @@ Note: There are two request statuses that are manually assigned by a team member
 
 
 # filing attachments
-FOIAMachine will file attachments from completed responses in designated Drive folder, specifically in a subdirectory named after the agency. These operations are typically performed globally via cronjob. 
+FOIAmail will file attachments from completed responses in designated Drive folder, specifically in a subdirectory named after the agency. These operations are typically performed globally via cronjob. 
 
 ## reading emails
 The `att.gm` module contains functions related to detecting GMail attachments, as well as control logic for downloading those attachments to buffer files, uploading them to Drive (see below) and removing buffer files. This process can be described as "shipping" attachments.   
@@ -219,7 +219,7 @@ The relevant status-lookup logic is found in the `get_status()` function. This f
 `write_to_log()` writes the agency name, status, and links to GMail threads into a Google Sheet, as defined by Drive file name in the configuration section of the `report.reponse` module.
 
 # management
-Commands to manage the FOIAMachine workflow are found under `foiamachine/mgr.py' and may be invoked manually or via cron.
+Commands to manage the FOIAmail workflow are found under `foiamail/mgr.py' and may be invoked manually or via cron.
 
 ## mgr
 `mgr.py` includes management commands for the following one-time initialization tasks, typically invoked manually:
