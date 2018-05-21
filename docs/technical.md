@@ -152,13 +152,21 @@ The FOIAMail application creates one draft for each agency. These drafts are bas
 - Each draft's `To:` field includes all email contacts on file under its agency's name.
 - Each draft's `Body` field is appended with the agency_slug unique identifier. (Whitespace-stripped, title-cased, and appended/prepended by hashtags `#`, as defined in `mgs.utils`. e.g.: `#ArlingtonHeights#`)
 
-To create drafts, call the `distribute()` function in the `msg.compose` module. Leaving the keyword argument `drafts` to the default empty list, which prompts for preparation of new drafts for each agency.  
+To create drafts, call the `distribute()` function in the `msg.compose` module. Leaving the keyword argument `drafts` to the default empty list, which prompts for preparation of new drafts for each agency.
+
+```python
+from msg.compose import distribute
+distribute()
+```
 
 
 ## sending
 To send, call `msg.compose` module's `distribute()` function with `send=True`.
 
-\# See issue \#4 
+```python
+from msg.compose import distribute
+distribute(send=True)
+```
 
 # labeling
 FOIAMail attempts to label incoming messages in two taxonomies:
