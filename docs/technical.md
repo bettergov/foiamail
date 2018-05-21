@@ -27,7 +27,7 @@ Note the following:
 
 With this information, we can connect to the EC2 instance using SSH.
 ```bash
-    ssh -i PATH/MY_KEY_PAIR.pem user@aws-instance
+ssh -i PATH/MY_KEY_PAIR.pem user@aws-instance
 ```
 
 You can use a command-line tool like [ssh-agent](https://www.ssh.com/ssh/agent) to manage your SSH keys.
@@ -47,39 +47,43 @@ cat NewKey.pub | ssh -i OriginalKey.pem user@amazon-instance "cat >> .ssh/author
 ```
 #### 3. testing the new key
 ```bash
-    ssh -i NewKey.pem user@aws-instance
+ssh -i NewKey.pem user@aws-instance
 ```
-
-
 
 ## os requirements
 First, set the timezone.
-```
+```bash
 sudo mv /etc/localtime /etc/localtime.bk
-sudo echo "America/Chicago" > /etc/timezone
+sudo cp /usr/share/zoneinfo/America/Chicago /etc/localtime
+# Use the following to reset to UTC
 sudo dpkg-reconfigure --frontend noninteractive tzdata
 ```
 
-```
+```bash
 sudo apt install python-setuptools 
 sudo easy_install pip  
 sudo pip install virtualenv 
+sudo apt-get update
+sudo apt-get install python-dev gcc 
 ```
 
 ## code requirements
-```
+```bash
 git clone https://github.com/mattkiefer/foiamail.git
 ```
 
 ## python requirements
-```
-cd foiamachine
+```bash
+cd foiamail
 virtualenv ./
 . bin/activate
-pip install requirements
+pip install -r requirements.txt
 ```
 
 ## google requirements
+### create fresh google account
+We recommend creating a new Google account. The app iterates through all contacts when drafting FOIAs, so an initially empty contacts list guarantees that no stray emails get loose.
+
 ### register google application
 https://console.cloud.google.com/home/dashboard  
 create project
@@ -107,7 +111,7 @@ It might take a few minutes.
 ### obtain credentials.dat
 Activate the virtual environment and open a python console:
 ```bash
-cd foiamachine
+cd foiamail
 . bin/activate
 python
 ```
@@ -130,11 +134,9 @@ test_cred()
 ```
 
 # importing/updating contacts
-The `contacts` module function, `load_contacts()`, takes a specified csv file of contacts (with field headers 'first name','last name','agency' and 'email') and loads them into the user's Google Contacts.  
+The app handles contacts through the [Gmail Contacts screen](https://mail.google.com/mail/u/0/#contacts). Read Google's own documentation for [how to import contacts](https://support.google.com/contacts/answer/1069522?hl=en&visit_id=1-636625309780616904-2128193528&rd=3).
 
-These contacts are later accessed by GMail when generating FOIA requests.  
-
-Verify contacts are loaded via the [GMail Contacts screen](https://mail.google.com/mail/u/0/#contacts)
+Note that for a contact to be recognized by the app, the contact needs to have an **organization** filled in. The app will draft messages for **all** contacts with organizations.
 
 # composing/sending messages
 Once contacts are loaded, FOIAs messages may be drafted and sent using the `msg` module.
@@ -150,13 +152,21 @@ The FOIAMail application creates one draft for each agency. These drafts are bas
 - Each draft's `To:` field includes all email contacts on file under its agency's name.
 - Each draft's `Body` field is appended with the agency_slug unique identifier. (Whitespace-stripped, title-cased, and appended/prepended by hashtags `#`, as defined in `mgs.utils`. e.g.: `#ArlingtonHeights#`)
 
-To create drafts, call the `distribute()` function in the `msg.compose` module. Leaving the keyword argument `drafts` to the default empty list, which prompts for preparation of new drafts for each agency.  
+To create drafts, call the `distribute()` function in the `msg.compose` module. Leaving the keyword argument `drafts` to the default empty list, which prompts for preparation of new drafts for each agency.
+
+```python
+from msg.compose import distribute
+distribute()
+```
 
 
 ## sending
 To send, call `msg.compose` module's `distribute()` function with `send=True`.
 
-\# See issue \#4 
+```python
+from msg.compose import distribute
+distribute(send=True)
+```
 
 # labeling
 FOIAMail attempts to label incoming messages in two taxonomies:
@@ -183,7 +193,7 @@ Note: There are two request statuses that are manually assigned by a team member
 
 
 # filing attachments
-FOIAMachine will file attachments from completed responses in designated Drive folder, specifically in a subdirectory named after the agency. These operations are typically performed globally via cronjob. 
+FOIAmail will file attachments from completed responses in designated Drive folder, specifically in a subdirectory named after the agency. These operations are typically performed globally via cronjob. 
 
 ## reading emails
 The `att.gm` module contains functions related to detecting GMail attachments, as well as control logic for downloading those attachments to buffer files, uploading them to Drive (see below) and removing buffer files. This process can be described as "shipping" attachments.   
@@ -218,7 +228,7 @@ The relevant status-lookup logic is found in the `get_status()` function. This f
 `write_to_log()` writes the agency name, status, and links to GMail threads into a Google Sheet, as defined by Drive file name in the configuration section of the `report.reponse` module.
 
 # management
-Commands to manage the FOIAMachine workflow are found under `foiamachine/mgr.py' and may be invoked manually or via cron.
+Commands to manage the FOIAmail workflow are found under `foiamail/mgr.py' and may be invoked manually or via cron.
 
 ## mgr
 `mgr.py` includes management commands for the following one-time initialization tasks, typically invoked manually:
