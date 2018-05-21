@@ -9,8 +9,7 @@ ipython -i mgr.py
 ```
 
 ```python
-# load contacts per configuration
-init_contacts()
+# load contacts directly in Gmail
 
 # then generate labels
 init_labels()
@@ -19,7 +18,7 @@ init_labels()
 init_msgs(send=True)
 ```
 
-Install a crontab to run the following tasks at regular intervals:
+[Install a crontab](http://www.ubuntututorials.com/use-crontab-ubuntu/) to run the following tasks at regular intervals:
 - `mgr.py --label`, to label incoming messages by agency and status (every few minutes)
 - `mgr.py --atts`, to migrate GMail attachments to Drive (nightly)
 - `mgr.py --report`, to generate a status report of agency responses in Google Sheets (nightly, after attachments migrate)
@@ -40,4 +39,3 @@ Routine checklist for operating FOIAMail:
 - Label messages '\*NA' for agencies that no longer exist or have no employees
 - Throughout the project, particularly after the FOIA deadline has passed, use the response report to identify non-responsive agencies and go nudge them
 - Update contact information via the GMail interface as necessary
-
