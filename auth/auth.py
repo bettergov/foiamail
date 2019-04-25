@@ -7,6 +7,9 @@ authentication tools for:
 that allow all other modules to work
 via wrapper functions
 """
+import os
+from pathlib import Path
+from decouple import config
 import httplib2
 import sys
 import json
@@ -21,8 +24,11 @@ import gdata.contacts.client
 import gdata.contacts.data
 
 ### START CONFIG ###
-client_id_path = 'auth/client_id_2017.json'
-credential_path = 'auth/credentials.dat'
+BASE_DIR = Path(__file__).parent.parent.absolute()
+client_id_path = os.path.join(BASE_DIR, config(
+    'AUTH_CLIENT_SECRET_PATH'))
+credential_path = os.path.join(BASE_DIR, config(
+    'AUTH_CREDENTIALS_PATH'))
 # some of these may be redundant
 scopes = (
     'https://www.googleapis.com/auth/gmail.labels',
@@ -32,7 +38,7 @@ scopes = (
     'https://www.googleapis.com/auth/spreadsheets',
     'https://www.googleapis.com/auth/drive',
 )
-debug = True
+debug = config('DEBUG', default=False, cast=bool)
 ### END CONFIG ###
 
 # setup
@@ -76,7 +82,7 @@ def get_service(credentials=get_cred(), type='gmail'):
 
 
 def get_gd_client(credentials=get_cred()):
-    """ 
+    """
     uses credentials to get a gd_client service object for
     - contacts
     """

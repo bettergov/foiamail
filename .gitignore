@@ -5,4 +5,8 @@
 *xlsx
 *bk
 *pem
+
+.config
+.env
 .venv
+.python-version

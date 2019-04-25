@@ -1,11 +1,11 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "c21ef71948f2cc0bb527ceb9d89f5a8d7dfcde96fcd208a2c5306f7c36199b8e"
+            "sha256": "0ce795aad792bc7ef41716c319d7f74f2cae093a52c943d9715a0a606f0b5870"
         },
         "pipfile-spec": 6,
         "requires": {
-            "python_version": "3.7"
+            "python_version": "3.6"
         },
         "sources": [
             {
@@ -57,15 +57,7 @@
             ],
             "version": "==3.1.0"
         },
-        "ecdsa": {
-            "hashes": [
-                "sha256:20c17e527e75acad8f402290e158a6ac178b91b881f941fc6ea305bfdfb9657c",
-                "sha256:5c034ffa23413ac923541ceb3ac14ec15a0d2530690413bff58c12b80e56d884"
-            ],
-            "version": "==0.13.2"
-        },
         "gdata": {
-            "editable": true,
             "git": "https://github.com/dvska/gdata-python3",
             "ref": "cd1b65181a34173f24327cece7bcc2fb898f7b34"
         },
@@ -152,6 +144,13 @@
             ],
             "version": "==0.2.5"
         },
+        "python-decouple": {
+            "hashes": [
+                "sha256:1317df14b43efee4337a4aa02914bf004f010cd56d6c4bd894e6474ec8c4fe2d"
+            ],
+            "index": "pypi",
+            "version": "==3.1"
+        },
         "python-docx": {
             "hashes": [
                 "sha256:bc76ecac6b2d00ce6442a69d03a6f35c71cd72293cd8405a7472dfe317920024"
@@ -172,12 +171,6 @@
                 "sha256:d16a0141ec1a18405cd4ce8b4613101da75da0e9a7aec5bdd4fa804d0e0eba73"
             ],
             "version": "==1.12.0"
-        },
-        "tlslite-ng": {
-            "hashes": [
-                "sha256:823bc35c89c336635751852b2a26ffed3b1258e1a5827279074b7dbf409187ab"
-            ],
-            "version": "==0.7.5"
         },
         "uritemplate": {
             "hashes": [
@@ -237,7 +230,6 @@
                 "sha256:54c5a8aa1eadd269ac210b96923688ccf01ebb2d0f21c18c3c717909583579a8",
                 "sha256:e840810029224b56cd0d9e7719dc3b39cf84d577f8ac686547c8ba7a06eeab26"
             ],
-            "markers": "python_version >= '3.4'",
             "version": "==7.5.0"
         },
         "ipython-genutils": {

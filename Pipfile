@@ -15,6 +15,7 @@ atom = "*"
 gdata = {git = "https://github.com/dvska/gdata-python3"}
 google-api-python-client = "*"
 python-docx = "*"
+python-decouple = "*"
 
 [requires]
-python_version = "3.7"
+python_version = "3.6"
