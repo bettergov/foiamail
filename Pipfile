@@ -1,0 +1,20 @@
+[[source]]
+url = "https://pypi.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[dev-packages]
+pylint = "*"
+"autopep8" = "*"
+ipdb = "*"
+
+[packages]
+"httplib2" = "*"
+"oauth2client" = "*"
+atom = "*"
+gdata = {git = "https://github.com/dvska/gdata-python3"}
+google-api-python-client = "*"
+python-docx = "*"
+
+[requires]
+python_version = "3.7"
