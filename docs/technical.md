@@ -56,28 +56,41 @@ First, set the timezone.
 sudo mv /etc/localtime /etc/localtime.bk
 sudo cp /usr/share/zoneinfo/America/Chicago /etc/localtime
 # Use the following to reset to UTC
-sudo dpkg-reconfigure --frontend noninteractive tzdata
+# sudo dpkg-reconfigure --frontend noninteractive tzdata
 ```
 
+Then set up python and pipenv.
 ```bash
-sudo apt install python-setuptools 
-sudo easy_install pip  
-sudo pip install virtualenv 
-sudo apt-get update
-sudo apt-get install python-dev gcc 
+# instructions for setting up python3 on ubuntu 18.04
+
+# make sure versions are up to date
+sudo apt update
+sudo apt -y upgrade
+
+# check that Python 3 is installed
+python3 -V
+
+# install pip3
+sudo apt install -y python3-pip
+
+# add other python dev packages
+sudo apt install build-essential libssl-dev libffi-dev python3-dev
+
+# install pipenv
+pip3 install --user pipenv
+source ~/.profile
 ```
 
 ## code requirements
 ```bash
-git clone https://github.com/mattkiefer/foiamail.git
+git clone https://github.com/bettergov/foiamail.git
 ```
 
 ## python requirements
 ```bash
 cd foiamail
-virtualenv ./
-. bin/activate
-pip install -r requirements.txt
+export PIPENV_VENV_IN_PROJECT=1
+pipenv install
 ```
 
 ## google requirements
