@@ -110,6 +110,9 @@ create project
       - application type: other
       - save client_secret.json to foiamail/auth/ and add path to auth.py config
 
+```bash
+scp client_secret.json ubuntu@ec2-XX-XXX-XXX-XXX.us-east-2.compute.amazonaws.com:~/foiamail/auth/client_secret.json
+```
 
 ### authorize google apis
 - apis & services
@@ -119,14 +122,13 @@ create project
     - contacts api
     - sheets api
     - drive api
+ 
 It might take a few minutes.
 
 ### obtain credentials.dat
 Activate the virtual environment and open a python console:
 ```bash
-cd foiamail
-. bin/activate
-python
+pipenv run python
 ```
 Then trigger the Google credentials download by invoking the OAuth 2.0 flow: 
 ```python
@@ -146,10 +148,14 @@ from auth.auth import test_cred
 test_cred()
 ```
 
+*Note: The Drive test won't pass if your Drive is empty.*
+
 # importing/updating contacts
 The app handles contacts through the [Gmail Contacts screen](https://mail.google.com/mail/u/0/#contacts). Read Google's own documentation for [how to import contacts](https://support.google.com/contacts/answer/1069522?hl=en&visit_id=1-636625309780616904-2128193528&rd=3).
 
 Note that for a contact to be recognized by the app, the contact needs to have an **organization** filled in. The app will draft messages for **all** contacts with organizations.
+
+**TODO**: Create a sample contacts file with the right column headers.
 
 # composing/sending messages
 Once contacts are loaded, FOIAs messages may be drafted and sent using the `msg` module.
