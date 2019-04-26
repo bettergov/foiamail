@@ -54,7 +54,8 @@ ssh -i NewKey.pem user@aws-instance
 First, set the timezone.
 ```bash
 sudo mv /etc/localtime /etc/localtime.bk
-sudo cp /usr/share/zoneinfo/America/Chicago /etc/localtime
+sudo rm -f /etc/localtime
+sudo ln -sf /usr/share/zoneinfo/America/Chicago /etc/localtime
 # Use the following to reset to UTC
 # sudo dpkg-reconfigure --frontend noninteractive tzdata
 ```
