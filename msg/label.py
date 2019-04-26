@@ -43,10 +43,11 @@ def select_unlabeled_msgs(date=None):
     defaults to today's messages
     e.g. date: datetime.datetime.strptime('2018/04/13','%Y/%m/%d')
     """
-    if not date:
-        date = datetime.now()
-    date = date.strftime('%Y/%m/%d')
-    query = 'after:' + date
+    # if not date:
+    # date = datetime.now()
+    # date = date.strftime('%Y/%m/%d')
+    # query = 'after:' + date
+    query = 'has:nouserlabels'
     return service.users().messages().list(userId='me', q=query).execute()['messages']
 
 
@@ -149,7 +150,8 @@ def check_agency_hashtag(msg):
         msg = service.users().messages().get(
             id=msg['id'], userId='me', format='raw').execute()
         body = base64.urlsafe_b64decode(msg['raw'].encode('ASCII'))
-        em = email.message_from_string(body)
+        em = email.message_from_bytes(body)
+
         if em.get_content_maintype() == 'multipart':
             match = recursive_match_scan(em)
         else:
@@ -181,13 +183,11 @@ def split_and_check(text):
     looks for hashtag-delimited text
     and returns it
     """
+
     try:
         text = base64.urlsafe_b64decode(text)
     except:
         pass
-    for chunk in text.split('#'):
-        if '#' + chunk + '#' in slugs:
-            return chunk
     for chunk in text.split('#'):
         if '#' + chunk + '#' in slugs:
             return chunk
@@ -214,7 +214,6 @@ def update_labels(msg_queue):
             #log.log_data('label',[{'msg_id':msg['id'],'agency':x['agency'] if x['agency'] else 'unidentified','status':x['req_status']}])
         except Exception as e:
             print(e)
-            #import ipdb; ipdb.set_trace()
 
 
 def label_agency(msg, agency):
@@ -242,7 +241,6 @@ def label_status(msg, status):
     # TODO 3rd check if agency assigned,
     # and if status is correct
     # then step through and see if it assigns
-    #import ipdb; ipdb.set_trace()
     if status_label:
         service.users().messages().modify(userId='me', id=msg['id'], body={
             "addLabelIds": [status_label]}).execute()
