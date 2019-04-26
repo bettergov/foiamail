@@ -1,5 +1,7 @@
 # first-time technical setup
-See [technical docs](docs/technical.md) for detailed instructions.  
+See [technical docs](docs/technical.md) for detailed explanations of commands.
+
+First, set up your server, environment, credentials and FOIA template (see [setting up](docs/technical.md#setting-up)).
 
 Once the server, environment and repository are set up, use `mgr.py` to initialize the application.
 
