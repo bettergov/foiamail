@@ -1,7 +1,5 @@
 # first-time technical setup
-See [technical docs](docs/technical.md) for detailed explanations of commands.
-
-First, set up your server, environment, credentials and FOIA template (see [setting up](docs/technical.md#setting-up)).
+First, set up your server, environment, credentials and FOIA template (see [setting up](docs/setting-up.md)).
 
 Once the server, environment and repository are set up, use `mgr.py` to initialize the application.
 
@@ -41,3 +39,6 @@ Routine checklist for operating FOIAMail:
 - Label messages '\*NA' for agencies that no longer exist or have no employees
 - Throughout the project, particularly after the FOIA deadline has passed, use the response report to identify non-responsive agencies and go nudge them
 - Update contact information via the GMail interface as necessary
+
+# technical docs
+See [docs/technical.md](docs/technical.md) for detailed explanations of commands.
