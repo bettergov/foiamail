@@ -29,43 +29,41 @@ def msgs_job(msgs=None, date=None):
     control function to handle label automation
     """
     if not msgs:
-        msgs = select_unlabeled_msgs(date=date)
-    msg_label_queue = []
+        msgs = select_unlabeled_msgs()
+
     for msg in msgs:
-        msg_label_queue.append(check_labels(msg))
-    update_labels(msg_label_queue)
+        my_msg_object = check_labels(msg['id'])
+        update_msg_labels(my_msg_object)
 
 
-def select_unlabeled_msgs(date=None):
+def select_unlabeled_msgs():
     """
-    this is maybe misnamed. 
-    selects all messages after specified date (at midnight).
-    defaults to today's messages
-    e.g. date: datetime.datetime.strptime('2018/04/13','%Y/%m/%d')
+    selects all messages without user labels (i.e. agency, status)
     """
-    # if not date:
-    # date = datetime.now()
-    # date = date.strftime('%Y/%m/%d')
-    # query = 'after:' + date
     query = 'has:nouserlabels'
     return service.users().messages().list(userId='me', q=query).execute()['messages']
 
 
-def check_labels(msg):
+def check_labels(msg_id):
     """
     given a message, checks:
     - request status
     - agency name
     ... and returns dict for labeling
     """
-    try:
-        msg = service.users().messages().get(
-            id=msg['id'], userId='me').execute()
-    except Exception as e:
-        logging.exception(e)
-    req_status = check_req_status(msg)
-    agency = check_agency_status(msg)
-    return {'msg': msg, 'req_status': req_status, 'agency': agency}
+    from collections import defaultdict
+
+    msg_obj = defaultdict(lambda: None)
+
+    msg = service.users().messages().get(
+        id=msg_id, userId='me').execute()
+    msg_obj['msg'] = msg
+
+    msg_obj['req_status'] = check_req_status(msg)
+
+    msg_obj['agency'] = check_agency_status(msg)
+
+    return msg_obj
 
 
 def check_req_status(msg):
@@ -108,7 +106,6 @@ def check_agency_status(msg):
     returns agency name
     """
     slug = check_agency_hashtag(msg)
-    # sender_agency = check_sender_agency(msg)
     return lookup_agency_by_slug(slug)
 
 
@@ -128,19 +125,16 @@ def check_agency_hashtag(msg):
     reads messages, scanning for hashtag-delimited slugs.
     supports multipart and non-multipart messages
     """
-    try:
-        msg = service.users().messages().get(
-            id=msg['id'], userId='me', format='raw').execute()
-        body = base64.urlsafe_b64decode(msg['raw'].encode('ASCII'))
-        em = email.message_from_bytes(body)
+    msg = service.users().messages().get(
+        id=msg['id'], userId='me', format='raw').execute()
+    body = base64.urlsafe_b64decode(msg['raw'].encode('ASCII'))
+    em = email.message_from_bytes(body)
 
-        if em.get_content_maintype() == 'multipart':
-            match = recursive_match_scan(em)
-        else:
-            match = split_and_check(em.get_payload())
-        return match
-    except Exception:
-        pass
+    if em.get_content_maintype() == 'multipart':
+        match = recursive_match_scan(em)
+    else:
+        match = split_and_check(em.get_payload())
+    return match
 
 
 def recursive_match_scan(em):
@@ -166,13 +160,40 @@ def split_and_check(text):
     and returns it
     """
 
+    # Decode it if you can; if not, that's because it's already in the right format
+    #
+    # (PJ Note: I still have a lot of trouble wrapping my head around this and
+    # what causes the differences in encoding)
     try:
-        text = base64.urlsafe_b64decode(text)
+        text = base64.urlsafe_b64decode(text.encode('ASCII'))
     except:
         pass
-    for chunk in text.split('#'):
+
+    for chunk in str(text).split('#'):
         if '#' + chunk + '#' in slugs:
             return chunk
+
+
+def update_msg_labels(x):
+    msg = x['msg']
+
+    # label agency
+    if x['agency']:
+        label_agency(msg, x['agency'])
+    else:
+        x['agency'] = get_thread_agency_label(msg) or '*unidentified'
+        label_agency(msg, x['agency'])
+
+    # label status
+    if x['req_status']:
+        label_status(msg, x['req_status'])
+
+    logging.info('\t'.join(str(j) for j in [
+        'labels',
+        x['msg']['id'],
+        x['agency'],
+        x['req_status']
+    ]))
 
 
 def update_labels(msg_queue):
@@ -192,7 +213,7 @@ def update_labels(msg_queue):
                     label_agency(msg, '*unidentified')
             if x['req_status']:
                 label_status(msg, x['req_status'])
-            logging.info('\t'.join([
+            logging.info('\t'.join(str(j) for j in [
                 'labels',
                 x['msg']['id'],
                 x['agency'],
@@ -252,7 +273,6 @@ def lookup_label(label_text, labels=labels):
     given the label name
     for api lookup purposes
     """
-    #matches = [label for label in labels if label['name'].replace(' ','') == label_text]
     matches = [label for label in labels if label['name'] == label_text]
     if matches:
         return matches[0]['id']
