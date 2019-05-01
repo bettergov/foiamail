@@ -31,9 +31,17 @@ def init(report_agencies=None):
     """
     if not report_agencies:
         report_agencies = agencies  # for debugging
+
     outfile, outcsv = setup_outfile()
     roll_thru(report_agencies, outcsv)
     outfile.close()
+
+    with open(outfile_path, 'r') as f:
+        reader = csv.DictReader(f)
+        rows = list(reader)
+
+    sorted_rows = sorted(rows, key=lambda x: (x['status'], x['agency']))
+    write_to_log(sorted_rows)
 
 
 def setup_outfile():
@@ -51,24 +59,21 @@ def roll_thru(agencies, outcsv):
     collects agency statuses and thread urls,
     writing results to file
     """
-    rows = []
     num_agencies = len(agencies)
 
     for i, agency in enumerate(agencies):
         logging.info(f'({str(i+1).zfill(3)}/{num_agencies}) {agency}')
+        # agency_label_id = lookup_label('agency/' + agency, LABELS)
         threads = get_threads(agency)
         try:
             status = get_status(threads, agency) if threads else None
         except Exception as e:
             logging.exception(e)
             status = 'error'
-        thread_urls = get_thread_urls(threads) if threads else None
-        row = {'agency': agency, 'status': status, 'threads': thread_urls}
-        rows.append(row)
+        row = {'agency': agency, 'status': status,
+               'threads': get_label_url('agency/' + agency)}
         logging.info(row)
         outcsv.writerow(row)
-    sorted_rows = sorted(rows, key=lambda x: (x['status'], x['agency']))
-    write_to_log(sorted_rows)
 
 
 def get_threads(agency):
@@ -120,12 +125,12 @@ def get_status(threads, agency):
         return 'no status available'
 
 
-def get_thread_urls(threads):
+def get_label_url(label):
     """
-    gets urls to each thread in list
-    TODO: pass agency label instead and return link to label search
+    gets url for all threads matching the given label
     """
-    return '\r\n'.join(['https://mail.google.com/mail/u/0/#inbox/' + thread['id'] for thread in threads])
+    import urllib.parse
+    return 'https://mail.google.com/mail/u/0/#label/' + urllib.parse.quote_plus(label)
 
 ### DRIVE ###
 
