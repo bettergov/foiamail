@@ -139,7 +139,7 @@ Follow the instructions to copy/paste the link into a browser, then enter the ve
 
 
 ### auth
-The `auth` module works behind the scenes in every other FOIAMail module. The wrapper functions, `get_service()` and `get_gd_client()`, are called by Contacts, GMail, Drive and Sheets APIs to authenticate requests.  
+The `auth` module works behind the scenes in every other FOIAMail module. The wrapper functions, `get_service()` and `get_gd_client()`, are called by Contacts, Gmail, Drive and Sheets APIs to authenticate requests.  
 
 The auth module depends on the credentials.dat file to verify requests.  
 
@@ -197,7 +197,7 @@ The `msg.label` module handles labeling for all incoming messages. The main wrap
 
 ## agency
 `check_agency_status()` assigns an agency name to the message thread by scanning it for the agency_slug identifier, e.g. #ArlingtonHeights#.  
-(It's worth noting that agency labels assigned to initial FOIA request messages should remain intact with standard reply messages. i.e., this is a GMail feature that doesn't depend on FOIAMail logic.)
+(It's worth noting that agency labels assigned to initial FOIA request messages should remain intact with standard reply messages. i.e., this is a Gmail feature that doesn't depend on FOIAMail logic.)
 `check_req_status()` returns one or none of the following status labels:
 - `*responded` is the default assigned value for an incoming message label
 - `*attachment` means the message has an attachment with an acceptable extension (e.g., xls, xlsx, csv, txt, pdf)
@@ -267,9 +267,9 @@ Because the GMail API doesn't expose hooks to trigger actions on message receipt
 Here's a sample crontab:
 ```bash
 # m h  dom mon dow   command
-*/15 7-19 * * * cd /home/matt/projects/bga/gm && . bin/activate && python mgr.py --label > /home/matt/projects/bga/gm/log/logs/cron-label
-0 5 * * * cd /home/matt/projects/bga/gm && . bin/activate && python mgr.py --report > /home/matt/projects/bga/gm/log/logs/cron-report
-50 6-20 * * * cd /home/matt/projects/bga/gm && . bin/activate && python mgr.py --atts > /home/matt/projects/bga/gm/log/logs/cron-atts
+*/5 7-19 * * * cd /home/ubuntu/foiamail && /home/ubuntu/.local/bin/pipenv run python mgr.py --label >> /home/ubuntu/foiamail-label.log 2>&1
+0 0 * * * cd /home/ubuntu/foiamail && /home/ubuntu/.local/bin/pipenv run python mgr.py --atts >> /home/ubuntu/foiamail-atts.log 2>&1
+0 5 * * * cd /home/ubuntu/foiamail && /home/ubuntu/.local/bin/pipenv run python mgr.py --report >> /home/ubuntu/foiamail-report.log 2>&1
 ```
 
 
