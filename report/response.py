@@ -3,13 +3,9 @@ writes a response report to Drive with:
     - agency name
     - status
     - link to thread
-
-TODO: 
-build dict of label ids, 
-names for status labels 
-to reduce API calls
 """
 import csv
+import logging
 from auth.auth import get_service
 from msg.label import agencies, lookup_label
 from att.drive import check_if_drive
@@ -18,11 +14,15 @@ from att.drive import check_if_drive
 outfile_path = 'report/reports/response.csv'
 outfile_headers = ['agency', 'status', 'threads']
 sheet_filename = 'agency_response_log'
-statuses = ['SENT', '*responded', '*attachment', '*done', '*NA']
+STATUSES = ['SENT', '*responded', '*attachment', '*done', '*NA']
 ### END CONFIG ###
 service = get_service()
 drive_service = get_service(type='drive')
 sheets_service = get_service(type='sheets')
+
+# save labels to file scope w/ single API call
+# reference this variable for label lookups
+LABELS = service.users().labels().list(userId='me').execute()['labels']
 
 
 def init(report_agencies=None):
@@ -52,18 +52,20 @@ def roll_thru(agencies, outcsv):
     writing results to file
     """
     rows = []
-    for agency in agencies:
-        print(agency)
+    num_agencies = len(agencies)
+
+    for i, agency in enumerate(agencies):
+        logging.info(f'({str(i+1).zfill(3)}/{num_agencies}) {agency}')
         threads = get_threads(agency)
         try:
             status = get_status(threads, agency) if threads else None
         except Exception as e:
-            print(e)
+            logging.exception(e)
             status = 'error'
         thread_urls = get_thread_urls(threads) if threads else None
         row = {'agency': agency, 'status': status, 'threads': thread_urls}
         rows.append(row)
-        print(row)
+        logging.info(row)
         outcsv.writerow(row)
     sorted_rows = sorted(rows, key=lambda x: (x['status'], x['agency']))
     write_to_log(sorted_rows)
@@ -73,12 +75,13 @@ def get_threads(agency):
     """
     gets all threads labeled as specified agency
     """
-    agency_label_id = lookup_label('agency/' + agency)
+    agency_label_id = lookup_label('agency/' + agency, LABELS)
+
     if agency_label_id:
         try:
             return service.users().threads().list(userId='me', labelIds=agency_label_id).execute()['threads']
         except Exception as e:
-            print(agency, e)
+            logging.exception(f"{agency} {e}")
 
 
 def get_status(threads, agency):
@@ -87,14 +90,19 @@ def get_status(threads, agency):
     found in the specified threads
     """
     agency_statuses = set()
+
     for t in threads:
         thread = service.users().threads().get(
             userId='me', id=t['id']).execute()
         for m in thread['messages']:
-            for lid in m['labelIds']:
-                label = service.users().labels().get(userId='me', id=lid).execute()
-                if label['name'] in statuses:
-                    agency_statuses.add(label['name'])
+            # get label objects where label id in m['labelIds']
+            m_labels = [x for x in LABELS if x['id'] in m['labelIds']]
+
+            # filter down to just "status" labels
+            m_statuses = [x['name'] for x in m_labels if x['name'] in STATUSES]
+
+            agency_statuses.update(m_statuses)
+
     # TODO: loop thru statuses list (in desc order of precedence)
     if check_if_drive(agency.replace("'", "")):  # no apostrophes allowed
         return 'shipped'

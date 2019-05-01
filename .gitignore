@@ -10,3 +10,5 @@
 .env
 .venv
 .python-version
+__pycache__
+log/logs

@@ -2,7 +2,7 @@
 creates labels as config'd for initial startup,
 handles labeling automation as scheduled
 """
-from log import log
+import logging
 from contacts import contacts
 from auth import auth
 import base64
@@ -62,7 +62,7 @@ def check_labels(msg):
         msg = service.users().messages().get(
             id=msg['id'], userId='me').execute()
     except Exception as e:
-        print(e)
+        logging.exception(e)
     req_status = check_req_status(msg)
     agency = check_agency_status(msg)
     return {'msg': msg, 'req_status': req_status, 'agency': agency}
@@ -121,24 +121,6 @@ def lookup_agency_by_slug(slug):
     candidates = [x for x in agencies if x.replace(' ', '') == slug]
     if candidates:
         return candidates[0]
-
-
-def check_sender_agency(msg):
-    """
-    deprecated.
-    originally designed to help lookup the agency by the sender.
-    this is problematic because occasionally a contact sends on behalf of multiple agencies.
-    keeping this code for reference but it's not advisable to implement, 
-    i.e. could result in false matches.
-    """
-    return
-    # todo: check for multiple matches ie double agents
-    sender = [x for x in msg['payload']['headers']
-              if x['name'] == 'From'][0]['value']
-    matching_agencies = [
-        agency for agency in contacts_by_agency if sender in contacts_by_agency[agency]]
-    if matching_agencies:
-        return matching_agencies[0]
 
 
 def check_agency_hashtag(msg):
@@ -210,10 +192,14 @@ def update_labels(msg_queue):
                     label_agency(msg, '*unidentified')
             if x['req_status']:
                 label_status(msg, x['req_status'])
-            print('labels', x['msg']['id'], x['agency'], x['req_status'])
-            #log.log_data('label',[{'msg_id':msg['id'],'agency':x['agency'] if x['agency'] else 'unidentified','status':x['req_status']}])
+            logging.info('\t'.join([
+                'labels',
+                x['msg']['id'],
+                x['agency'],
+                x['req_status']
+            ]))
         except Exception as e:
-            print(e)
+            logging.exception(e)
 
 
 def label_agency(msg, agency):
@@ -260,7 +246,7 @@ def get_thread_agency_label(msg):
                 return [label['name'] for label in labels if label['id'] == lid][0]
 
 
-def lookup_label(label_text):
+def lookup_label(label_text, labels=labels):
     """
     returns the label id
     given the label name
