@@ -3,6 +3,7 @@ downloads gmail atts
 """
 
 import base64
+import logging
 import os
 from auth.auth import get_service
 from msg.label import agencies, get_atts
@@ -39,7 +40,7 @@ def roll_thru():
                 # only proceed if agency is done, has atts and not already in drive
                 atts = get_agency_atts(threads)
                 if atts:
-                    print(agency)
+                    logging.info(agency)
                     drive_folder = make_drive_folder(agency.replace(
                         "'", ""), atts_drive_folder)  # no apostrophes allowed
                     for att in atts:
@@ -47,9 +48,9 @@ def roll_thru():
                         upload_to_drive(att, drive_folder)
                         os.remove(path)
             else:
-                print('skipping', agency)
+                logging.info(f'skipping {agency}')
         except Exception as e:
-            print(agency, 'failed', e)
+            logging.exception(f'{agency} failed\t{e}')
 
 
 def check_if_done(threads, agency):

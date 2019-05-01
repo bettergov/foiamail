@@ -1,4 +1,5 @@
 # <3 CAT
+import logging
 from auth import auth
 from log import log
 from msg import compose, label
@@ -9,6 +10,8 @@ from att import gm
 cron_label = '--label' in argv
 cron_atts = '--atts' in argv
 cron_report = '--report' in argv
+
+logging.basicConfig(level=logging.INFO)
 
 # contacts
 
