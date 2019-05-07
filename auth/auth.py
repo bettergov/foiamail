@@ -74,11 +74,11 @@ def get_service(credentials=get_cred(), type='gmail'):
     http = credentials.authorize(httplib2.Http(
         disable_ssl_certificate_validation=True))
     if type == 'gmail':
-        return build('gmail', 'v1', http=http)
+        return build('gmail', 'v1', http=http, cache_discovery=False)
     elif type == 'sheets':
-        return build('sheets', 'v4', http=http)
+        return build('sheets', 'v4', http=http, cache_discovery=False)
     elif type == 'drive':
-        return build('drive', 'v3', http=http)
+        return build('drive', 'v3', http=http, cache_discovery=False)
 
 
 def get_gd_client(credentials=get_cred()):
