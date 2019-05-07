@@ -68,8 +68,7 @@ def check_labels(msg_id):
 
 def check_req_status(msg):
     """
-    for incoming messages, checks if
-    it has an attachment or not,
+    for incoming messages, checks if it has an attachment or not,
     then returns as '*attachment' or '*responded'
     """
     em_from = [x for x in msg['payload']['headers']
@@ -83,10 +82,10 @@ def check_req_status(msg):
 
 def get_atts(msg):
     """
-    scans a message's attachments
-    and checks if atts have acceptable extensions
+    Scans a message's attachments and checks if atts have acceptable extensions
     as configured.
-    returns accepted atts
+
+    Returns accepted atts.
     """
     # list len evals to bool
     atts = []

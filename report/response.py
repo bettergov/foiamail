@@ -63,13 +63,14 @@ def roll_thru(agencies, outcsv):
 
     for i, agency in enumerate(agencies):
         logging.info(f'({str(i+1).zfill(3)}/{num_agencies}) {agency}')
-        # agency_label_id = lookup_label('agency/' + agency, LABELS)
         threads = get_threads(agency)
+
         try:
             status = get_status(threads, agency) if threads else None
         except Exception as e:
             logging.exception(e)
             status = 'error'
+
         row = {'agency': agency, 'status': status,
                'threads': get_label_url('agency/' + agency)}
         logging.info(row)
@@ -83,10 +84,7 @@ def get_threads(agency):
     agency_label_id = lookup_label('agency/' + agency, LABELS)
 
     if agency_label_id:
-        try:
-            return service.users().threads().list(userId='me', labelIds=agency_label_id).execute()['threads']
-        except Exception as e:
-            logging.exception(f"{agency} {e}")
+        return service.users().threads().list(userId='me', labelIds=agency_label_id).execute()['threads']
 
 
 def get_status(threads, agency):

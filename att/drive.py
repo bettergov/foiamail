@@ -34,15 +34,29 @@ def check_if_drive(agency):
     checks if the specified agency
     has a folder in the atts folder on Drive
     """
-    return drive_service.files().list(q="name='" + agency + "'").execute().get('files')
+
+    return drive_service.files().list(q=f"name='{agency}'").execute().get('files')
 
 
-def make_drive_folder(agency, atts_drive_folder):
+def get_or_create_drive_folder(agency, atts_drive_folder):
     """
-    makes a folder on Drive
-    with the specified name
-    within the specified folder
+    Gets or creates a folder on Drive with the specified name within the
+    specified folder
     """
+
+    # check if folder exists
+    results = drive_service.files().list(
+        corpora='user',
+        q=f'name="{agency}" and mimeType contains "google-apps.folder"'
+    ).execute()
+
+    # if folder exists, return it
+    if results['files']:
+        return drive_service.files().get(
+            fileId=results['files'][0]['id']
+        ).execute()
+
+    # otherwise create folder
     return drive_service.files().create(
         body={
             'name': agency,
@@ -56,8 +70,21 @@ def upload_to_drive(att, drive_folder):
     uploads the specified att
     to the specified Drive folder
     """
-    logging.info(f'uploading {att["file_name"]}')
-    body = {'name': att['file_name'], 'parents': [drive_folder['id']]}
-    media_body = MediaFileUpload(buffer_path + att['file_name'])
-    drive_service.files().create(
-        body=body, media_body=media_body).execute()
+
+    file_name = att['file_name']
+    parent_id = drive_folder['id']
+
+    # check if the file already exists
+    results = drive_service.files().list(
+        q=f'name="{file_name}" and "{parent_id}" in parents').execute()
+
+    if results['files']:
+        logging.info(f'{file_name} already uploaded')
+
+    # if not, upload the file
+    else:
+        logging.info(f'uploading {file_name}')
+        body = {'name': file_name, 'parents': [parent_id]}
+        media_body = MediaFileUpload(buffer_path + file_name)
+        drive_service.files().create(
+            body=body, media_body=media_body).execute()

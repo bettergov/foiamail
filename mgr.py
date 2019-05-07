@@ -11,6 +11,7 @@ cron_label = '--label' in argv
 cron_atts = '--atts' in argv
 cron_report = '--report' in argv
 
+logging.getLogger('googleapiclient.discovery').setLevel(logging.WARNING)
 logging.basicConfig(level=logging.INFO)
 
 # contacts
