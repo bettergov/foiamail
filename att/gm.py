@@ -41,21 +41,29 @@ def roll_thru(agencies=agencies):
         # no apostrophes allowed
         agency_cleaned = agency.replace("'", "")
 
-        # only proceed if agency is marked done
-        if check_if_done(threads, agency):
+        # move on if agency is marked done
+        if not check_if_done(threads, agency):
+            logging.info(
+                f'{index}/{total_agencies} skipping {agency} - not marked done')
+            continue
 
-            atts = get_agency_atts(threads)
+        # move on if agency folder already exists
+        if check_if_drive(agency_cleaned):
+            logging.info(
+                f'{index}/{total_agencies} skipping {agency} - agency folder already exists')
+            continue
 
-            logging.info(f'{index}/{total_agencies}\t{agency}')
-            drive_folder = get_or_create_drive_folder(
-                agency_cleaned, atts_drive_folder)
+        # execute below code if everything above fails
+        atts = get_agency_atts(threads)
 
-            for att in atts:
-                path = download_buffer_file(att)
-                upload_to_drive(att, drive_folder)
-                os.remove(path)
-        else:
-            logging.info(f'{index}/{total_agencies}\tskipping {agency}')
+        logging.info(f'{index}/{total_agencies} starting {agency}')
+        drive_folder = get_or_create_drive_folder(
+            agency_cleaned, atts_drive_folder)
+
+        for att in atts:
+            path = download_buffer_file(att)
+            upload_to_drive(att, drive_folder)
+            os.remove(path)
 
 
 def check_if_done(threads, agency):
@@ -63,6 +71,7 @@ def check_if_done(threads, agency):
     checks if this agency's threads 
     include any messages labeled 'done'
     """
+
     return get_status(threads, agency) in ('done', 'shipped')
 
 
