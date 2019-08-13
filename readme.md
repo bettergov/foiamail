@@ -1,3 +1,8 @@
+# foimail
+A framework for mass FOIA campaigns. Distribute public records requests, manage responses and organize file attachments using GMail, Sheets and Drive.
+
+Technically, it's a bunch of a API calls on cron.
+
 # first-time technical setup
 First, set up your server, environment, credentials and FOIA template (see [setting up](docs/setting-up.md)).
 
