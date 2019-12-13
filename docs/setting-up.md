@@ -85,7 +85,7 @@ pip install -r requirements.txt
 We recommend creating a new Google account. The app iterates through all contacts when drafting FOIAs, so an initially empty contacts list guarantees that no stray emails get loose.
 
 ### register google application
-https://console.cloud.google.com/home/dashboard  
+_incognito:_ https://console.cloud.google.com/home/dashboard  
 create project
 
 ### get credentials
