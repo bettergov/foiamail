@@ -13,7 +13,7 @@ from email.mime.text import MIMEText
 import base64
 
 ### START CONFIG ###
-foia_doc       = 'msg/payroll-foia-2018.docx'
+foia_doc       = 'msg/foia.docx'
 interval       = 1 # seconds
 subject        = 'Payroll FOIA | '
 me             = 'me'
