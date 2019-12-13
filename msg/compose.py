@@ -15,7 +15,7 @@ import base64
 ### START CONFIG ###
 foia_doc       = 'msg/foia.docx'
 interval       = 1 # seconds
-subject        = 'Payroll FOIA | '
+subject        = ' FOIA | '
 me             = 'me'
 logtype        = 'msg'
 ### END CONFIG ###
