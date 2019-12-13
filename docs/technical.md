@@ -1,3 +1,6 @@
+# importing contacts
+As of this writing, the workflow to import contacts involves uploading a csv file via the gmail ui. Use the contacts_template.csv, populating *Name* (optional), *Organization 1 - Name* and *Email 1 - Value* fields before uploading to contacts.google.com. 
+
 # composing/sending messages
 Once contacts are loaded, FOIAs messages may be drafted and sent using the `msg` module.
 
