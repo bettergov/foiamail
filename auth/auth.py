@@ -19,7 +19,7 @@ import gdata.contacts.client
 import gdata.contacts.data
 
 ### START CONFIG ###
-client_id_path = 'auth/client_id_2017.json'
+client_id_path = 'auth/client_secret.json'
 credential_path = 'auth/credentials.dat'
 # some of these may be redundant
 scopes = (
