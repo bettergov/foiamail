@@ -74,6 +74,7 @@ git clone https://github.com/mattkiefer/foiamail.git
 
 ## python requirements
 ```bash
+sudo apt install python-pip
 cd foiamail
 virtualenv ./
 . bin/activate
