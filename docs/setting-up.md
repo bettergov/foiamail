@@ -95,7 +95,7 @@ create project
     - create credentials
       - oath clientid
       - configure consent screen
-      - application type: other application
+      - application type: desktop
       - save client_secret.json to foiamail/auth/ and add path to auth.py config
 
 
