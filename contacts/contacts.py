@@ -5,6 +5,7 @@ this module
 	{agency:[contacts]}
   which produces an agency list
 """
+from __future__ import print_function
 import csv
 from auth import auth
 import atom.data
@@ -33,7 +34,7 @@ def load_contacts():
     """
     loads contacts via api
     """
-    raw_input('creating contacts ... hit enter')
+    input('creating contacts ... hit enter')
     for contact in import_contacts():
         try:
             sleep(1)
@@ -43,9 +44,9 @@ def load_contacts():
             new_contact.organization = gdata.data.Organization(name=gdata.data.OrgName(contact['agency']),rel='work')
             new_contact.email[0].label = 'work'
             contact_entry = gd_client.CreateContact(new_contact)
-            print 'new contacts', contact_entry
-        except Exception, e:
-            print 'problem with',contact['email'], e
+            print('new contacts', contact_entry)
+        except Exception as e:
+            print('problem with',contact['email'], e)
             log.log_data('contact',contact)
 
 def import_contacts():
@@ -96,7 +97,7 @@ def delete_contacts(cs=[]):
     don't think this works but you can do it from the UI
     """
     if not cs:
-        dac = raw_input('delete ALL contacts? [y/N]')
+        dac = input('delete ALL contacts? [y/N]')
         if dac.lower == 'y':
             cs = get_contacts()
     for c in cs:

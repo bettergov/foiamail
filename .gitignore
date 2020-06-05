@@ -9,3 +9,17 @@
 *docx
 *pyc
 *swp
+*.bak
+
+# python temporary files
+*.pyc
+__pycache__
+
+# pyenv local version
+.python-version
+
+# docs temp files
+.~*#
+
+# editor temp files
+.*.swp

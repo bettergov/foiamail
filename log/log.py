@@ -85,7 +85,7 @@ def write_log(logfile,method,data):
     appending if it already exists
     or writing if it doesn't
     """
-    logcsv = csv.DictWriter(logfile,data[0].keys())
+    logcsv = csv.DictWriter(logfile,list(data[0].keys()))
     if method == 'w':
         logcsv.writeheader()
     for row in data:

@@ -2,6 +2,7 @@
 creates labels as config'd for initial startup,
 handles labeling automation as scheduled
 """
+from __future__ import print_function
 from log import log
 from contacts import contacts
 from auth import auth
@@ -11,16 +12,16 @@ from datetime import datetime
 
 ### START CONFIG ###
 # acceptable types of attachment for labeling and shipping purposes
-att_exts = ['txt','csv','xls','xlsx','pdf','xlsm','xlt','ods','xlsb'] 
+att_exts = ['txt','csv','xls','xlsx','pdf','xlsm','xlt','ods','xlsb']
 statuses = ['*unidentified','*responded','*attachment','*done','*NA']
 maxResults = 999 # tune for query optimization
 ### END CONFIG ###
 
 service = auth.get_service()
 contacts_by_agency = contacts.get_contacts_by_agency()
-agencies = [agency for agency in contacts_by_agency.keys()]
+agencies = [agency for agency in list(contacts_by_agency.keys())]
 slugs = [agency_slug(agency) for agency in agencies]
-labels = service.users().labels().list(userId='me').execute()['labels'] 
+labels = service.users().labels().list(userId='me').execute()['labels']
 agency_label_ids = [x['id'] for x in labels if 'agency' in x['name']]
 
 def msgs_job(msgs=None,date=None):
@@ -36,12 +37,12 @@ def msgs_job(msgs=None,date=None):
 
 def select_unlabeled_msgs(date=None):
     """
-    this is maybe misnamed. 
+    this is maybe misnamed.
     selects all messages after specified date (at midnight).
     defaults to today's messages
     e.g. date: datetime.datetime.strptime('2018/04/13','%Y/%m/%d')
     """
-    if not date: 
+    if not date:
         date = datetime.now()
     date = date.strftime('%Y/%m/%d')
     query = 'after:' + date
@@ -62,8 +63,8 @@ def check_labels(msg):
     """
     try:
         msg = service.users().messages().get(id=msg['id'],userId='me').execute()
-    except Exception, e:
-        print e
+    except Exception as e:
+        print(e)
         import ipdb; ipdb.set_trace()
     req_status = check_req_status(msg)
     agency = check_agency_status(msg)
@@ -91,9 +92,9 @@ def get_atts(msg):
     """
     # list len evals to bool
     atts = []
-    if 'parts' in msg['payload'].keys():
+    if 'parts' in list(msg['payload'].keys()):
         for part in msg['payload']['parts']:
-            if 'filename' in part.keys() and \
+            if 'filename' in list(part.keys()) and \
                     part['filename'].split('.')[-1].lower() in att_exts:
                 atts.append(part)
     return atts
@@ -124,12 +125,12 @@ def check_sender_agency(msg):
     deprecated.
     originally designed to help lookup the agency by the sender.
     this is problematic because occasionally a contact sends on behalf of multiple agencies.
-    keeping this code for reference but it's not advisable to implement, 
+    keeping this code for reference but it's not advisable to implement,
     i.e. could result in false matches.
     """
     return
     # todo: check for multiple matches ie double agents
-    sender = [x for x in msg['payload']['headers'] if x['name'] == 'From'][0]['value'] 
+    sender = [x for x in msg['payload']['headers'] if x['name'] == 'From'][0]['value']
     matching_agencies = [agency for agency in contacts_by_agency if sender in contacts_by_agency[agency]]
     if matching_agencies:
         return matching_agencies[0]
@@ -148,8 +149,8 @@ def check_agency_hashtag(msg):
             match = recursive_match_scan(em)
         else:
             match = split_and_check(em.get_payload())
-        return match 
-    except Exception, e:
+        return match
+    except Exception as e:
         pass
 
 
@@ -203,10 +204,10 @@ def update_labels(msg_queue):
                     label_agency(msg,'*unidentified')
             if x['req_status']:
                 label_status(msg,x['req_status'])
-            print 'labels', x['msg']['id'],x['agency'],x['req_status']
+            print('labels', x['msg']['id'],x['agency'],x['req_status'])
             #log.log_data('label',[{'msg_id':msg['id'],'agency':x['agency'] if x['agency'] else 'unidentified','status':x['req_status']}])
-        except Exception, e:
-            print e
+        except Exception as e:
+            print(e)
             #import ipdb; ipdb.set_trace()
 
 def label_agency(msg,agency):
@@ -262,29 +263,29 @@ def delete_labels(label_ids=None):
     """
     deletes labels
     """
-    if not label_ids:     
-        dal = raw_input('delete ALL user labels? *this is a first-time setup thing* [y/N]')
+    if not label_ids:
+        dal = input('delete ALL user labels? *this is a first-time setup thing* [y/N]')
         if dal.lower() == 'y':
             labels = service.users().labels().list(userId='me').execute()
-            print labels
+            print(labels)
             label_ids = [x['id'] for x in labels['labels'] if x['type'] == 'user']
     for label_id in label_ids:
-        print 'deleting label', label_id
+        print('deleting label', label_id)
         #TODO comment out
         service.users().labels().delete(userId='me',id=label_id).execute()
 
 def create_labels(labels=[]):
     """
-    creates labels based on 
+    creates labels based on
     - agencies (defined by contacts)
     - statuses (defined in configs)
     """
     if not labels:
         labels += ['agency']
-        labels += ['agency/' + agency for agency in agencies] # see https://github.com/mattkiefer/gm/issues/1 
+        labels += ['agency/' + agency for agency in agencies] # see https://github.com/mattkiefer/gm/issues/1
         labels += statuses
     for label in labels:
-        print 'creating label', label
+        print('creating label', label)
         service.users().labels().create(userId='me',body=make_label(label)).execute()
 
 def make_label(label_text):

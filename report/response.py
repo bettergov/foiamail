@@ -4,11 +4,12 @@ writes a response report to Drive with:
     - status
     - link to thread
 
-TODO: 
-build dict of label ids, 
-names for status labels 
+TODO:
+build dict of label ids,
+names for status labels
 to reduce API calls
 """
+from __future__ import print_function
 import csv
 from auth.auth import get_service
 from msg.label import agencies, lookup_label
@@ -49,21 +50,21 @@ def roll_thru(agencies,outcsv):
     """
     rows = []
     for agency in agencies:
-        print agency
+        print(agency)
         threads = get_threads(agency)
         try:
             status = get_status(threads,agency) if threads else None
-        except Exception, e:
-            print e
+        except Exception as e:
+            print(e)
             status = 'error'
         thread_urls = get_thread_urls(threads) if threads else None
         row = {'agency':agency,'status':status,'threads':thread_urls}
         rows.append(row)
-        print row
+        print(row)
         outcsv.writerow(row)
     sorted_rows = sorted(rows, key = lambda x: (x['status'],x['agency']))
     write_to_log(sorted_rows)
-    
+
 def get_threads(agency):
     """
     gets all threads labeled as specified agency
@@ -72,8 +73,8 @@ def get_threads(agency):
     if agency_label_id:
         try:
             return service.users().threads().list(userId='me',labelIds=agency_label_id).execute()['threads']
-        except Exception, e:
-            print agency, e
+        except Exception as e:
+            print(agency, e)
 
 def get_status(threads,agency):
     """
@@ -132,12 +133,12 @@ def write_to_log(data):
     """
     # get/create and clear
     log = get_or_create_log()
-    sheets_service.spreadsheets().values().clear(spreadsheetId=log['id'],range='Sheet1',body={}).execute()
+    list(sheets_service.spreadsheets().values()).clear(spreadsheetId=log['id'],range='Sheet1',body={}).execute()
     # headers
     values = [outfile_headers]
     # data
     for row in data:
         values.append([row['agency'],row['status'],row['threads']])
     body = {'values':values}
-    result = sheets_service.spreadsheets().values().update(\
+    result = list(sheets_service.spreadsheets().values()).update(\
             spreadsheetId=log['id'],range='Sheet1',valueInputOption='RAW',body=body).execute()

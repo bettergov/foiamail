@@ -7,16 +7,16 @@ authentication tools for:
 that allow all other modules to work
 via wrapper functions
 """
-import httplib2, sys, json
+from __future__ import print_function
+import httplib2
+import json
 from apiclient.discovery import build
 from oauth2client import tools
 from oauth2client.file import Storage
 from oauth2client.client import AccessTokenRefreshError
 from oauth2client.client import OAuth2WebServerFlow
-import atom.data
-import gdata.data
 import gdata.contacts.client
-import gdata.contacts.data
+
 
 ### START CONFIG ###
 client_id_path = 'auth/client_secret.json'
@@ -71,7 +71,7 @@ def get_service(credentials=get_cred(),type='gmail'):
         return build('drive', 'v3', http=http)
 
 def get_gd_client(credentials=get_cred()):
-    """ 
+    """
     uses credentials to get a gd_client service object for
     - contacts
     """
@@ -93,22 +93,22 @@ def test_cred(credentials=get_cred()):
     """
     # contacts
     gd_client = get_gd_client(credentials)
-    if gd_client: print 'contact success'
-    else: print 'contact fail'
+    if gd_client: print('contact success')
+    else: print('contact fail')
 
     # gmail
     service = get_service(credentials)
     results = service.users().labels().list(userId='me').execute().get('labels',[])
-    if results: print 'gmail success'
-    else: print 'gmail fail'
+    if results: print('gmail success')
+    else: print('gmail fail')
 
     # drive
     drive_service = get_service(type='drive')
     results = drive_service.files().list(pageSize=10,fields="nextPageToken, files(id, name)").execute()
-    if 'files' in results: print 'drive success'
-    else: print 'drive fail'
+    if 'files' in results: print('drive success')
+    else: print('drive fail')
 
     # sheets
     sheets_service = get_service(type='sheets')
-    if sheets_service: print 'sheets success'
-    else: print 'sheets fail'
+    if sheets_service: print('sheets success')
+    else: print('sheets fail')

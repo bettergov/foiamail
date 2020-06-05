@@ -1,8 +1,10 @@
 """
 downloads gmail atts
 """
+from __future__ import print_function
 
-import base64, os
+import base64
+import os
 from auth.auth import get_service
 from msg.label import agencies, get_atts
 from report.response import get_threads, get_status
@@ -32,24 +34,24 @@ def roll_thru():
     for agency in agencies:
         try:
             threads = get_threads(agency)
-            if not check_if_drive(agency.replace("'","")) and check_if_done(threads,agency): # no apostrophes allowed 
+            if not check_if_drive(agency.replace("'","")) and check_if_done(threads,agency): # no apostrophes allowed
                 # only proceed if agency is done, has atts and not already in drive
                 atts = get_agency_atts(threads)
                 if atts:
-                    print agency
+                    print(agency)
                     drive_folder = make_drive_folder(agency.replace("'",""),atts_drive_folder) # no apostrophes allowed
                     for att in atts:
                         path = download_buffer_file(att)
                         upload_to_drive(att, drive_folder)
                         os.remove(path)
             else:
-                print 'skipping', agency
-        except Exception, e:
-            print agency,'failed',e
+                print('skipping', agency)
+        except Exception as e:
+            print(agency,'failed',e)
 
 def check_if_done(threads,agency):
     """
-    checks if this agency's threads 
+    checks if this agency's threads
     include any messages labeled 'done'
     """
     return get_status(threads,agency) == 'done'
@@ -69,16 +71,16 @@ def get_agency_atts(threads):
                 atts.append({'att_id':att['body']['attachmentId'],'msg_id':msg['id'],'file_name':att['filename']})
     return atts
 
-def download_buffer_file(att):  
+def download_buffer_file(att):
     """
     downloads specified att to
-    buffer file 
+    buffer file
     and returns path
     """
     attachment = gmail_service.users().messages().attachments().get(\
             id=att['att_id'],messageId=att['msg_id'],userId='me').execute()
     file_data = base64.urlsafe_b64decode(attachment['data'].encode('UTF-8'))
-    buffer_file_path = buffer_path + att['file_name'] 
+    buffer_file_path = buffer_path + att['file_name']
     buffer_file = open(buffer_file_path,'w')
     buffer_file.write(file_data)
     buffer_file.close()
