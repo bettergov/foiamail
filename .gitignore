@@ -10,6 +10,8 @@
 *pyc
 *swp
 *.bak
+*.pdf
+msg/foia.md
 
 # python temporary files
 *.pyc
