@@ -50,11 +50,11 @@ def select_unlabeled_msgs(date=None):
     date = date.strftime('%Y/%m/%d')
     query = 'after:' + date
     response = service.users().messages().list(userId='me',q=query,maxResults=maxResults).execute()
-    messages = response['messages']
+    messages = response.get('messages', [])
     while 'nextPageToken' in response:
         page_token = response['nextPageToken']
         response = service.users().messages().list(userId='me',q=query,maxResults=maxResults,pageToken=page_token).execute()
-        messages.extend(response['messages'])
+        messages.extend(response.get('messages', []))
     return messages
 
 
