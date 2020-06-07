@@ -2,17 +2,17 @@
 this module
 - loads contacts
 - returns contacts by agency:
-	{agency:[contacts]}
+    {agency:[contacts]}
   which produces an agency list
 """
 from __future__ import print_function
 import csv
 from auth import auth
-import atom.data
 import gdata.data
 import gdata.contacts.data
 from time import sleep
 from log import log
+
 
 ### START CONFIG ###
 #infile_path      = 'contacts/bga_contacts.csv'
@@ -20,6 +20,7 @@ infile_path = 'contacts/contacts.csv'
 test_infile_path = 'contacts/test-contacts.csv'
 test = False
 ### END CONFIG ###
+
 
 # test allows you to send sample FOIAs to test email addresses
 # ********

@@ -4,21 +4,33 @@ foia messages
 """
 from __future__ import print_function
 from datetime import datetime
+# TODO: python2 mode
+import io
 import re
 from time import sleep
 from log import log
-from auth import auth
 from docx import Document
-from contacts.contacts import get_contacts_by_agency
-from msg.utils import agency_slug
-from msg.label import label_agency
-from email.MIMEMultipart import MIMEMultipart
+# python 2
+try:
+    from email.MIMEMultipart import MIMEMultipart
+# python 3
+except ModuleNotFoundError:
+    from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from email.mime.application import MIMEApplication
 import base64
+import markdown
+from weasyprint import HTML
+
+from auth import auth
+from contacts.contacts import get_contacts_by_agency
+from msg.utils import agency_slug
+from msg.label import label_agency
 
 
-## TODO: move all this into separate configs (JSON/YAML files?)
+# TODO: move all this into separate configs (JSON/YAML files?)
+# TODO: proper markdown -> plaintext support. right now this
+# just removes <br/> tags and assumes the md is already email text
 ### START CONFIG ###
 foia_doc       = 'msg/foia.md'
 # Uncomment the below line for original FOIA message functionality, note
@@ -64,7 +76,8 @@ def distribute(send=False):
                     retry = False
                     print('distribution complete.')
                 elif drafts and len(drafts) == original_draft_len:
-                    # drafts aren't sending, it's a lost cause. avoid infinite loop
+                    # drafts aren't sending, it's a lost cause. avoid infinite
+                    # loop
                     retry = False
                     print(('distribution incomplete:', len(drafts), 'unsent'))
                 else:
@@ -119,10 +132,12 @@ def prep_agency_drafts(contacts_by_agency=[]):
             contacts = ','.join(contacts_by_agency[agency])
             draft = {'agency': agency, 'draft': compose_draft(
                 body, slug_subject, contacts)}
-            # TODO label the draft here not when you send so you can verify thanks
+            # TODO label the draft here not when you send so you can verify
+            # thanks
             drafts.append(draft)
             print(draft)
-        # TODO verify all agencies have a draft ... some get skipped i.e. service errors
+        # TODO verify all agencies have a draft ... some get skipped i.e.
+        # service errors
         return drafts
     else:
         print('skipping')
@@ -138,6 +153,39 @@ def sanity_check(drafts):
     return verify in ['Y', 'y']
 
 
+def html_to_text(body):
+    no_tags = re.sub(r"<br\s*/>", "\n", body)
+    return no_tags
+
+
+def strip_markdown(md_body):
+    """
+    NOTE: Works poorly for lists right now.
+    """
+    def unmark_element(element, stream=None):
+        if stream is None:
+            stream = io.StringIO()
+        if element.text:
+            stream.write(element.text)
+        for sub in element:
+            unmark_element(sub, stream)
+        if element.tail:
+            stream.write(element.tail)
+        return stream.getvalue()
+
+    # patching Markdown
+    markdown.Markdown.output_formats["plain"] = unmark_element
+    __md = markdown.Markdown(output_format="plain")
+    __md.stripTopLevelTags = False
+
+    def unmark(text):
+        unmarked = __md.convert(text)
+        no_tags = re.sub(r"<br\s*/>", "\n", unmarked)
+        return no_tags
+
+    return unmark(md_body)
+
+
 def load_foia_text(**kwarg_replacements):
     """
     reads foia template from docx file as config'd
@@ -148,7 +196,9 @@ def load_foia_text(**kwarg_replacements):
     if foia_doc.endswith(".docx"):
         # TODO: this has a bad error where it doesn't capture any
         # of the text inside of a list, the paragraph of a list is blank
-        return '\r\n'.join([p.text for p in Document(docx=foia_doc).paragraphs])
+        return '\r\n'.join([
+            p.text for p in Document(docx=foia_doc).paragraphs
+        ])
     elif foia_doc.endswith(".md"):
         with open(foia_doc, "r") as f:
             text = f.read()
@@ -162,6 +212,7 @@ def load_foia_text(**kwarg_replacements):
             # would be bad to send
             err_msg = "Found un-replaced replacement variable in text"
             assert "{" not in text and "}" not in text, err_msg
+            print("Plaintext:\n%s" % (text))
             return text
     else:
         err_msg = "Unknown FOIA template: %s. Valid types: .docx, .md" % (
@@ -170,9 +221,14 @@ def load_foia_text(**kwarg_replacements):
         raise NotImplementedError(err_msg)
 
 
-def load_foia_pdf():
-    with open("msg/foia.pdf", "rb") as f:
-        return f.read()
+def load_foia_pdf(foia_text):
+    foia_html = markdown.markdown(foia_text)
+    doc = HTML(file_obj=foia_html)
+    buf = io.BytesIO()
+    doc.write_pdf(target=buf)
+    buf.seek(0)
+    pdf = buf.read()
+    return pdf
 
 
 def compose_draft(body, subject, contacts):
@@ -200,24 +256,27 @@ def compose_message(body, subject, contacts):
     message['from'] = me
     message['to'] = contacts
 
-    message.attach(MIMEText(body, "plain"))
+    plaintext_body = html_to_text(body)
+    print("Plaintext:\n%s" % (plaintext_body))
+    message.attach(MIMEText(plaintext_body, "plain"))
 
     # Attach the pdf to the msg going by e-mail
-    pdf = load_foia_pdf()
+    pdf = load_foia_pdf(body)
     if pdf:
-       attach = MIMEApplication(pdf,_subtype="pdf")
-       # attach = MIMEApplication(f.read(),_subtype="pdf")
-       attach.add_header(
-           'Content-Disposition', 'attachment', filename="foia.pdf"
-       )
-       message.attach(attach)
+        attach = MIMEApplication(pdf, _subtype="pdf")
+        # attach = MIMEApplication(f.read(),_subtype="pdf")
+        attach.add_header(
+            'Content-Disposition', 'attachment', filename="records-request.pdf"
+        )
+        message.attach(attach)
 
     # python2
     try:
         return {'raw': base64.urlsafe_b64encode(message.as_string())}
     # python 3
     except TypeError:
-        return {'raw': base64.urlsafe_b64encode(message.as_bytes())}
+        enc_bytes = base64.urlsafe_b64encode(message.as_bytes())
+        return {'raw': enc_bytes.decode("utf-8")}
 
 
 def sender(draft):
@@ -264,7 +323,9 @@ def get_drafts():
     gets all drafts.
     only called by delete_drafts, may be unnecessary
     """
-    drafts = service.users().drafts().list(userId='me', maxResults=2000).execute()
+    drafts = service.users().drafts().list(
+        userId='me', maxResults=2000
+    ).execute()
     if 'drafts' in list(drafts.keys()):
         drafts = drafts['drafts']
     return drafts

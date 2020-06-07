@@ -1,0 +1,2 @@
+-e git+https://github.com/dvska/gdata-python3#egg=gdata
+

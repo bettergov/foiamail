@@ -21,7 +21,7 @@ simplegeneric==0.8.1
 traitlets==4.3.2
 uritemplate==3.0.0
 wcwidth==0.1.7
--e git+https://github.com/dvska/gdata-python3#egg=gdata
+gdata==2.0.18
 google-api-python-client>=1.9.1
 httplib2==0.18.1
 oauth2client==4.1.2
@@ -30,3 +30,4 @@ pyasn1-modules==0.2.1
 rsa==3.4.2
 six==1.11.0
 uritemplate==3.0.0
+markdown==3.2.2
