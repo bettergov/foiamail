@@ -85,6 +85,8 @@ def check_req_status(msg):
     """
     em_from = [x for x in msg['payload']['headers']
                if x['name'] == 'From'][0]['value']
+    # hard coded check to determine if a non-sender is on the thread
+    # https://github.com/bettergov/foiamail/issues/53
     if em_from.split('@')[-1] == 'bettergov.org':
         return
     if get_atts(msg):

@@ -11,6 +11,11 @@ RUN cp /usr/share/zoneinfo/America/Chicago /etc/localtime
 # Git for py3 deps
 RUN apt-get update \
     && apt-get install --no-install-recommends -y \
+        build-essential python3-dev python3-setuptools python3-wheel python3-cffi \
+        libcairo2 libpango-1.0-0 libpangocairo-1.0-0 libgdk-pixbuf2.0-0 libffi-dev \
+        shared-mime-info \
+        rsyslog \
+        logrotate \
         cron \
         tree \
         git \
@@ -25,18 +30,20 @@ RUN dpkg-reconfigure --frontend noninteractive tzdata
 RUN apt install -y
 
 COPY . /home/ubuntu/foiamail
+RUN cat crontab >> /etc/crontab
 
 RUN pip install -r /home/ubuntu/foiamail/requirements.txt
 RUN pip install -r /home/ubuntu/foiamail/requirements.py3.txt
 
 FROM deps as base
 
-RUN echo "*/15 7-19 * * * cd /home/ubuntu/foiamail && python /home/ubuntu/foiamail/mgr.py --label | tee -a /home/ubuntu/foiamail/log/logs/cron-label" >> /etc/crontab
-RUN echo "0 0 * * * cd /home/ubuntu/foiamail && python mgr.py --atts | tee -a /home/ubuntu/foiamail/log/logs/cron-atts" >> /etc/crontab
-RUN echo "0 5 * * * cd /home/ubuntu/foiamail && python mgr.py --report | tee -a /home/ubuntu/foiamail/log/logs/cron-report" >> /etc/crontab
-
+# fake a virtualenv so we don't have to maintain a separate cron
+RUN mkdir /home/ubuntu/foiamail/bin
+RUN touch /home/ubuntu/foiamail/bin/activate
 RUN touch /home/ubuntu/foiamail/log/logs/cron-atts
 RUN touch /home/ubuntu/foiamail/log/logs/cron-label
 RUN touch /home/ubuntu/foiamail/log/logs/cron-report
 
-CMD cron -f -L 8
+# && tail -f /var/log/cron.log && tail -f /home/ubuntu/foiamail/log/logs/*
+#CMD anacron -d -n
+CMD cron -f -L 15

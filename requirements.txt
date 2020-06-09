@@ -31,3 +31,5 @@ rsa==3.4.2
 six==1.11.0
 uritemplate==3.0.0
 markdown==3.2.2
+WeasyPrint==51
+html2text==2020.1.16
