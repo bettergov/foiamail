@@ -137,7 +137,7 @@ test_cred()
 ```
 
 # importing/updating contacts
-The app handles contacts through the [Gmail Contacts screen](https://mail.google.com/mail/u/0/#contacts). Read Google's own documentation for [how to import contacts](https://support.google.com/contacts/answer/1069522?hl=en&visit_id=1-636625309780616904-2128193528&rd=3).
+The app handles contacts through the [Gmail Contacts screen](https://contacts.google.com/). Read Google's own documentation for [how to import contacts](https://support.google.com/contacts/answer/1069522).
 
 Note that for a contact to be recognized by the app, the contact needs to have an **organization** filled in. The app will draft messages for **all** contacts with organizations.
 
