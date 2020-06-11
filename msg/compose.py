@@ -98,7 +98,7 @@ def unsent_agency_contacts():
                 in contacts_by_agency if not get_threads(agency))
 
 
-def prep_agency_drafts(contacts_by_agency=[]):
+def prep_agency_drafts(contacts_by_agency=None):
     """
     preps drafts for unsent agencies, with:
     - agency name appended to subject
@@ -130,8 +130,10 @@ def prep_agency_drafts(contacts_by_agency=[]):
             body = foia_text + '\r\n\r\n' + slug
             slug_subject = agency.title() + subject
             contacts = ','.join(contacts_by_agency[agency])
-            draft = {'agency': agency, 'draft': compose_draft(
-                body, slug_subject, contacts)}
+            draft = {
+                "agency": agency,
+                "draft": compose_draft(body, slug_subject, contacts),
+            }
             # TODO label the draft here not when you send so you can verify
             # thanks
             drafts.append(draft)
