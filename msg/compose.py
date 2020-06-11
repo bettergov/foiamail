@@ -128,7 +128,7 @@ def prep_agency_drafts(contacts_by_agency=[]):
             )
             slug = agency_slug(agency)
             body = foia_text + '\r\n\r\n' + slug
-            slug_subject = subject + agency
+            slug_subject = agency.title() + subject
             contacts = ','.join(contacts_by_agency[agency])
             draft = {'agency': agency, 'draft': compose_draft(
                 body, slug_subject, contacts)}
@@ -222,7 +222,7 @@ def load_foia_text(**kwarg_replacements):
 
 
 def load_foia_pdf(foia_text):
-    foia_html = markdown.markdown(foia_text)
+    foia_html = markdown.markdown(foia_text.replace("#", "\#"))
     doc = HTML(file_obj=foia_html)
     buf = io.BytesIO()
     doc.write_pdf(target=buf)
@@ -301,7 +301,7 @@ def sender(draft):
     sleep(interval)
 
 
-def delete_drafts(draft_ids=[]):
+def delete_drafts(draft_ids=None):
     """
     this can be handled via UI
     """

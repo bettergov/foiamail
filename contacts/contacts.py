@@ -75,12 +75,14 @@ def get_contacts(max=2000):
 contacts = get_contacts()
 
 
-def get_contacts_by_agency(contacts=get_contacts()):
+def get_contacts_by_agency(contacts=None):
     """
     modify contacts
     to get custom query of
     agency contacts
     """
+    if contacts is None:
+        contacts = get_contacts()
     agency_contacts = {}
     for contact in contacts:
         if contact.organization:
@@ -106,7 +108,7 @@ def already_a_contact(email):
     return email in contact_emails
 
 
-def delete_contacts(cs=[]):
+def delete_contacts(cs=None):
     """
     don't think this works but you can do it from the UI
     """

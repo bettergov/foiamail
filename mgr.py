@@ -10,8 +10,8 @@ from att import gm
 cron_label = '--label' in argv
 cron_atts = '--atts' in argv
 cron_report = '--report' in argv
-
-# contacts
+build_drafts = '--build-drafts' in argv
+send_drafts = '--send-drafts' in argv
 
 
 def init_contacts(delete=False):
@@ -20,15 +20,11 @@ def init_contacts(delete=False):
         contacts.delete_contacts()
     contacts.load_contacts()
 
-# labels
-
 
 def init_labels(delete=False):
     if delete:
         label.delete_labels()
     label.create_labels()
-
-# msg
 
 
 def init_msgs(send=False):
@@ -37,6 +33,12 @@ def init_msgs(send=False):
     else:
         print('send with init_msgs(send=True)')
 
+
+if build_drafts:
+    init_msgs(send=False)
+
+if send_drafts:
+    init_msgs(send=True)
 
 # cron
 if cron_label:

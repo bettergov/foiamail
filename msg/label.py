@@ -304,7 +304,7 @@ def delete_labels(label_ids=None):
         service.users().labels().delete(userId='me', id=label_id).execute()
 
 
-def create_labels(labels=[]):
+def create_labels(labels=None):
     """
     creates labels based on
     - agencies (defined by contacts)
