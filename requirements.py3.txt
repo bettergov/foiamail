@@ -1,2 +1,3 @@
 -e git+https://github.com/dvska/gdata-python3#egg=gdata
-
+markdown==3.2.2
+WeasyPrint==51

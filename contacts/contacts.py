@@ -13,6 +13,8 @@ import gdata.contacts.data
 from time import sleep
 from log import log
 
+from msg.utils import user_input
+
 
 ### START CONFIG ###
 #infile_path      = 'contacts/bga_contacts.csv'
@@ -37,7 +39,7 @@ def load_contacts():
     """
     loads contacts via api
     """
-    input('creating contacts ... hit enter')
+    user_input('creating contacts ... hit enter')
     for contact in import_contacts():
         try:
             sleep(1)
@@ -113,7 +115,7 @@ def delete_contacts(cs=None):
     don't think this works but you can do it from the UI
     """
     if not cs:
-        dac = input('delete ALL contacts? [y/N]')
+        dac = user_input('delete ALL contacts? [y/N]')
         if dac.lower == 'y':
             cs = get_contacts()
     for c in cs:

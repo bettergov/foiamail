@@ -24,7 +24,7 @@ from weasyprint import HTML
 
 from auth import auth
 from contacts.contacts import get_contacts_by_agency
-from msg.utils import agency_slug
+from msg.utils import agency_slug, user_input
 from msg.label import label_agency
 
 
@@ -60,7 +60,7 @@ def distribute(send=False):
     retry = True
     drafts = prep_agency_drafts()
     if send and sanity_check(drafts):
-        ready = input('drafts created. inspect and type "send" to distribute')
+        ready = user_input('drafts created. inspect and type "send" to distribute')
         if ready.lower() == 'send':
             while retry:
                 original_draft_len = len(drafts)
@@ -119,7 +119,7 @@ def prep_agency_drafts(contacts_by_agency=None):
     delete_drafts()
     # then create new drafts
     print(('agencies to be prepped:', list(contacts_by_agency.keys())))
-    pd = input('prep drafts now? [y/N]')
+    pd = user_input('prep drafts now? [y/N]')
     if pd.lower() == 'y':
         drafts = []
         date = datetime.now().date().strftime("%a, %b %d, %Y")
@@ -152,7 +152,7 @@ def sanity_check(drafts):
     """
     print(drafts)
     print(('len(drafts)', len(drafts)))
-    verify = input('Everything ready? [y/N]')
+    verify = user_input('Everything ready? [y/N]')
     return verify in ['Y', 'y']
 
 
@@ -313,7 +313,7 @@ def delete_drafts(draft_ids=None):
         drafts = get_drafts()
         draft_ids = [x['id'] for x in drafts if type(drafts) == list]  # hack
     print(('len(draft_ids)', len(draft_ids)))
-    dd = input('existing drafts found ... delete ?[y/N]')
+    dd = user_input('existing drafts found ... delete ?[y/N]')
     if dd.lower() == 'y':
         print(drafts)
         for draft_id in draft_ids:

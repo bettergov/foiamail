@@ -11,6 +11,9 @@ import email
 from msg.utils import agency_slug
 from datetime import datetime
 
+from msg.utils import user_input
+
+
 ### START CONFIG ###
 # acceptable types of attachment for labeling and shipping purposes
 att_exts = ['txt', 'csv', 'xls', 'xlsx', 'pdf', 'xlsm', 'xlt', 'ods', 'xlsb']
@@ -291,8 +294,9 @@ def delete_labels(label_ids=None):
     deletes labels
     """
     if not label_ids:
-        dal = input(
-            'delete ALL user labels? *this is a first-time setup thing* [y/N]')
+        dal = user_input(
+            'delete ALL user labels? *this is a first-time setup thing* [y/N]'
+        )
         if dal.lower() == 'y':
             labels = service.users().labels().list(userId='me').execute()
             print(labels)

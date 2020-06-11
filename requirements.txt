@@ -30,6 +30,6 @@ pyasn1-modules==0.2.1
 rsa==3.4.2
 six==1.11.0
 uritemplate==3.0.0
-markdown==3.2.2
-WeasyPrint==51
+markdown==3.1.1
+weasyprint==0.42.0
 html2text==2020.1.16
