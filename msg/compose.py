@@ -38,7 +38,7 @@ foia_doc       = 'msg/foia.md'
 # so make sure to not use them
 # foia_doc       = 'msg/foia.docx'
 interval       = 1 # seconds
-subject        = ' Non-commercial FOIA | '
+subject        = ' Non-commercial FOIA'
 me             = 'me'
 logtype        = 'msg'
 ### END CONFIG ###
@@ -94,6 +94,7 @@ def unsent_agency_contacts():
     """
     from report.response import get_threads
     contacts_by_agency = get_contacts_by_agency()
+    print('contacts_by_agency', contacts_by_agency)
     return dict((agency, contacts_by_agency[agency]) for agency
                 in contacts_by_agency if not get_threads(agency))
 

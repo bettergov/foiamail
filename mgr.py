@@ -28,13 +28,13 @@ def init_labels(delete=False):
 
 
 def init_msgs(send=False):
-    if send:
-        compose.distribute(send=send)
-    else:
+    compose.distribute(send=send)
+    if not send:
         print('send with init_msgs(send=True)')
 
 
 if build_drafts:
+    print("Building drafts...")
     init_msgs(send=False)
 
 if send_drafts:
