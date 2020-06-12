@@ -37,13 +37,11 @@ RUN pip install -r /home/ubuntu/foiamail/requirements.py3.txt
 
 FROM deps as base
 
+# persist logs across docker runs
+VOLUME /home/ubuntu/foiamail/log/logs
+
 # fake a virtualenv so we don't have to maintain a separate cron
 RUN mkdir /home/ubuntu/foiamail/bin
 RUN touch /home/ubuntu/foiamail/bin/activate
-RUN touch /home/ubuntu/foiamail/log/logs/cron-atts
-RUN touch /home/ubuntu/foiamail/log/logs/cron-label
-RUN touch /home/ubuntu/foiamail/log/logs/cron-report
 
-# && tail -f /var/log/cron.log && tail -f /home/ubuntu/foiamail/log/logs/*
-#CMD anacron -d -n
 CMD cron -f -L 15
