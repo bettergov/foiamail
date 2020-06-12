@@ -15,16 +15,21 @@ import shutil
 
 ### START CONFIG ###
 log_dir = 'log/logs/'
-logpaths = {
-    'stdout':  '',
-    'auth':  log_dir + 'auth.csv',
-    'contact':  log_dir + 'contact.csv',
-    'msg':  log_dir + 'msg.csv',
-    'label':  log_dir + 'label.csv',
-    'report':  log_dir + 'report.csv',
-    'att':  log_dir + 'att.csv',
+logfiles = {
+    'stdout': '',
+    'auth': 'auth.csv',
+    'contact': 'contact.csv',
+    'msg': 'msg.csv',
+    'label': 'label.csv',
+    'report': 'report.csv',
+    'att': 'att.csv',
 }
 ### END CONFIG ###
+
+
+def get_logpath(logtype):
+    filename = logfiles[logtype]
+    return os.path.join(log_dir, filename)
 
 
 def log_data(logtype, data):
@@ -56,7 +61,7 @@ def write_or_append(logtype, data):
     checks if file exists and appends,
     else creates and writes (starting with headers
     """
-    path = logpaths[logtype]
+    path = get_logpath(logtype)
     method = 'w'
     if check_file_exists(logtype) and check_schema_match(logtype, data):
         # append if log exists and schema matches
@@ -75,7 +80,7 @@ def check_file_exists(logtype):
     """
     returns True if path exists
     """
-    return os.path.isfile(logpaths[logtype])
+    return os.path.isfile(get_logpath(logtype))
 
 
 def check_schema_match(logtype, data):
@@ -84,7 +89,7 @@ def check_schema_match(logtype, data):
     """
     # check if new data matches logfile schema
     return sorted(data[0].keys()) == \
-        sorted(csv.DictReader(logpaths[logtype]).fieldnames)
+        sorted(csv.DictReader(get_logpath(logtype)).fieldnames)
 
 
 def write_log(logfile, method, data):
