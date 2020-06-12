@@ -7,7 +7,7 @@ By default, contacts imported via CSV end up in an isolated "Imported on MONTH/D
 Once contacts are loaded, FOIAs messages may be drafted and sent using the `msg` module.
 
 ## importing a template
-A FOIA template should be saved to the `foiamail/msg` directory in .docx format and referenced in the configuration section of `compose.py`.  
+A FOIA template should be saved to the `foiamail/msg` directory in `.md` (markdown) or `.docx` format and referenced in the `msg.compose.foia_doc` variable of the `config/config.yaml` configuration file. 
 
 This template file will be imported when drafting FOIA messages.
 
@@ -90,7 +90,7 @@ The relevant status-lookup logic is found in the `get_status()` function. This f
  
 
 ## writing to sheet
-`write_to_log()` writes the agency name, status, and links to GMail threads into a Google Sheet, as defined by Drive file name in the configuration section of the `report.reponse` module.
+`write_to_log()` writes the agency name, status, and links to GMail threads into a Google Sheet, as defined by Drive file name in the `report` section of the `config/config.yaml` config file.
 
 # management
 Commands to manage the FOIAmail workflow are found under `foiamail/mgr.py' and may be invoked manually or via cron.

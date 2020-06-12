@@ -142,6 +142,6 @@ The app handles contacts through the [Gmail Contacts screen](https://contacts.go
 Note that for a contact to be recognized by the app, the contact needs to have an **organization** filled in. The app will draft messages for **all** contacts with organizations.
 
 # importing a template
-A FOIA template should be saved to the `foiamail/msg` directory in .docx format and referenced in the configuration section of `compose.py`.  
+A FOIA template should be saved to the `foiamail/msg` directory in .docx format and referenced in the `msg` section of the `config/config.yaml` configuration file.  
 
 This template file will be imported when drafting FOIA messages.
