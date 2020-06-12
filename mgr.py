@@ -12,6 +12,8 @@ cron_atts = '--atts' in argv
 cron_report = '--report' in argv
 build_drafts = '--build-drafts' in argv
 send_drafts = '--send-drafts' in argv
+build_labels = "--build-labels" in argv
+delete_labels = "--delete-labels" in argv
 
 
 def init_contacts(delete=False):
@@ -33,19 +35,30 @@ def init_msgs(send=False):
         print('send with init_msgs(send=True)')
 
 
+if build_labels:
+    print("Building labels...")
+    if delete_labels:
+        print("... and deleting labels ...")
+    init_labels(delete=delete_labels)
+
+
 if build_drafts:
     print("Building drafts...")
     init_msgs(send=False)
 
+
 if send_drafts:
     init_msgs(send=True)
+
 
 # cron
 if cron_label:
     label.msgs_job()
 
+
 if cron_atts:
     gm.roll_thru()
+
 
 if cron_report:
     response.init()
