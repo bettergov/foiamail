@@ -45,6 +45,8 @@ def roll_thru():
                 print('skipping despite attachments (not marked done)', agency)
                 continue
 
+            # don't create a bunch of blank directories every time we get
+            # a response (whether or not we have an attachment)
             drive_folder = check_if_drive(clean_agency)
             if drive_folder:
                 drive_folder = make_drive_folder(
