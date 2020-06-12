@@ -20,6 +20,9 @@ __pycache__
 # pyenv local version
 .python-version
 
+# direnv file for deploys
+.envrc
+
 # docs temp files
 .~*#
 
