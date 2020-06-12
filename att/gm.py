@@ -5,14 +5,19 @@ from __future__ import print_function
 
 import base64
 import os
+import traceback
+
 from auth.auth import get_service
 from msg.label import agencies, get_atts
 from report.response import get_threads, get_status
-from att.drive import get_or_create_atts_folder,\
-    check_if_drive, make_drive_folder, upload_to_drive
+from att.drive import (
+    get_or_create_atts_folder, check_if_drive, make_drive_folder,
+    upload_to_drive
+)
 
 ### START CONFIG ###
 buffer_path = '/tmp/'
+upload_despite_marked_done = True
 ### END CONFIG ###
 
 gmail_service = get_service(type='gmail')
@@ -33,24 +38,34 @@ def roll_thru():
     """
     atts_drive_folder = get_or_create_atts_folder()
     for agency in agencies:
+        clean_agency = agency.replace("'", "")
         try:
             threads = get_threads(agency)
-            # no apostrophes allowed
-            if not check_if_drive(agency.replace("'", "")) and check_if_done(threads, agency):
-                # only proceed if agency is done, has atts and not already in drive
-                atts = get_agency_atts(threads)
-                if atts:
-                    print(agency)
-                    drive_folder = make_drive_folder(agency.replace(
-                        "'", ""), atts_drive_folder)  # no apostrophes allowed
-                    for att in atts:
-                        path = download_buffer_file(att)
-                        upload_to_drive(att, drive_folder)
-                        os.remove(path)
-            else:
-                print('skipping', agency)
+            if not check_if_done(threads, agency):
+                print('skipping despite attachments (not marked done)', agency)
+                continue
+
+            drive_folder = check_if_drive(clean_agency)
+            if drive_folder:
+                drive_folder = make_drive_folder(
+                    clean_agency, atts_drive_folder
+                )
+
+            # only proceed if agency is done, has atts and not already in drive
+            atts = get_agency_atts(threads)
+            if atts:
+                print(agency)
+                # no apostrophes allowed
+                drive_folder = make_drive_folder(
+                    clean_agency, atts_drive_folder
+                )
+                for att in atts:
+                    path = download_buffer_file(att)
+                    upload_to_drive(att, drive_folder)
+                    os.remove(path)
         except Exception as e:
-            print(agency, 'failed', e)
+            err = "%s: %s" % (e, traceback.format_exc()).replace("\n", "\\n ")
+            print(agency, 'failed', err)
 
 
 def check_if_done(threads, agency):
@@ -70,11 +85,16 @@ def get_agency_atts(threads):
     """
     atts = []
     for thread in threads:
-        for msg in gmail_service.users().threads().get(
-                id=thread['id'], userId='me').execute().get('messages'):
+        messages = gmail_service.users().threads().get(
+            id=thread['id'], userId='me'
+        ).execute().get('messages')
+        for msg in messages:
             for att in get_atts(msg):
-                atts.append({'att_id': att['body']['attachmentId'],
-                             'msg_id': msg['id'], 'file_name': att['filename']})
+                atts.append({
+                    'att_id': att['body']['attachmentId'],
+                    'msg_id': msg['id'],
+                    'file_name': att['filename']
+                })
     return atts
 
 
