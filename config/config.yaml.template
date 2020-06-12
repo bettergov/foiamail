@@ -1,0 +1,65 @@
+att:
+  buffer_path: '/tmp/'
+  drive:
+    atts_drive_folder_name: 'agency_attachments'
+
+auth:
+  client_id_path: 'auth/client_secret.json'
+  credential_path: 'auth/credentials.dat'
+  # some of these may be redundant
+  scopes: [
+      'https://www.googleapis.com/auth/gmail.labels',
+      'https://www.google.com/m8/feeds',
+      'https://www.googleapis.com/auth/gmail.compose',
+      'https://mail.google.com/',
+      'https://www.googleapis.com/auth/spreadsheets',
+      'https://www.googleapis.com/auth/drive',
+  ]
+  debug: True
+
+contacts:
+  #infile_path: 'contacts/bga_contacts.csv'
+  infile_path: 'contacts/contacts.csv'
+  test_infile_path: 'contacts/test-contacts.csv'
+  test: False
+
+log:
+  log_dir: 'log/logs/'
+  logfiles:
+    stdout: ''
+    auth: 'auth.csv'
+    contact: 'contact.csv'
+    msg: 'msg.csv'
+    label: 'label.csv'
+    report: 'report.csv'
+    att: 'att.csv'
+
+msg:
+  compose:
+    foia_doc: 'msg/foia.md'
+    # seconds
+    interval: 1
+    subject: ' Non-commercial FOIA | '
+    # 'prepend' or 'append' the above subject
+    subject_add_method: 'prepend'
+    me: 'me'
+    logtype: 'msg'
+  label:
+    # acceptable types of attachment for labeling and shipping purposes
+    att_exts: ['txt', 'csv', 'xls', 'xlsx', 'pdf', 'xlsm', 'xlt', 'ods', 'xlsb', 'zip']
+    statuses: ['*unidentified', '*responded', '*attachment', '*done', '*NA']
+    # tune for query optimization
+    maxResults: 999
+    # how to determine if an email in a thread is from us
+    is_sender_check:
+      # all emails from this domain aren't from agency
+      domain: bettergov.org
+    # # if you want to do an exact email sender match, use the below
+    # is_sender_check:
+    #   email: openrecords@example.tld
+
+report:
+  outfile_path: 'report/reports/response.csv'
+  outfile_headers: ['agency', 'status', 'threads']
+  sheet_filename: 'agency_response_log'
+  statuses: ['SENT', '*responded', '*attachment', '*done', '*NA']

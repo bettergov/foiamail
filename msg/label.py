@@ -13,18 +13,13 @@ from contacts import contacts
 from log import log
 from msg.utils import agency_slug, user_input
 
+from config import config
 
-### START CONFIG ###
-# acceptable types of attachment for labeling and shipping purposes
-att_exts = [
-    'txt', 'csv', 'xls', 'xlsx', 'pdf', 'xlsm', 'xlt', 'ods', 'xlsb',
-    'zip',
-]
-statuses = ['*unidentified', '*responded', '*attachment', '*done', '*NA']
-maxResults = 999 # tune for query optimization
-# is_sender_email = lambda email: email.split('@')[-1] == 'bettergov.org'
-is_sender_email = lambda email: 'openrecords.bxroberts@gmail.com' in email
-### END CONFIG ###
+
+att_exts = config.data["msg"]["label"]["att_exts"]
+statuses = config.data["msg"]["label"]["statuses"]
+maxResults = config.data["msg"]["label"]["maxResults"]
+is_sender_check = config.data["msg"]["label"]["is_sender_check"]
 
 service = auth.get_service()
 contacts_by_agency = contacts.get_contacts_by_agency()
@@ -84,6 +79,19 @@ def check_labels(msg):
     req_status = check_req_status(msg)
     agency = check_agency_status(msg)
     return {'msg': msg, 'req_status': req_status, 'agency': agency}
+
+
+def is_sender_email(email):
+    domain_check = is_sender_check.get("domain")
+    email_check = is_sender_check.get("email")
+    if domain_check:
+        return email.split('@')[-1] == domain_check
+    elif email_check:
+        return email.lower() == email_check.lower()
+    else:
+        raise ValueError(
+            "Configuration is missing an `email` or `domain` is_sender_check!"
+        )
 
 
 def check_req_status(msg):

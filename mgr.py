@@ -12,8 +12,8 @@ cron_atts = '--atts' in argv
 cron_report = '--report' in argv
 build_drafts = '--build-drafts' in argv
 send_drafts = '--send-drafts' in argv
-build_labels = "--build-labels" in argv
-delete_labels = "--delete-labels" in argv
+build_labels = '--build-labels' in argv
+delete_labels = '--delete-labels' in argv
 
 
 def init_contacts(delete=False):

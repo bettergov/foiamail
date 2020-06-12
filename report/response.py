@@ -11,16 +11,18 @@ to reduce API calls
 """
 from __future__ import print_function
 import csv
+
 from auth.auth import get_service
 from msg.label import agencies, lookup_label
 from att.drive import check_if_drive
+from config import config
 
-### START CONFIG ###
-outfile_path = 'report/reports/response.csv'
-outfile_headers = ['agency', 'status', 'threads']
-sheet_filename = 'agency_response_log'
-statuses = ['SENT', '*responded', '*attachment', '*done', '*NA']
-### END CONFIG ###
+
+outfile_path = config.data["report"]["outfile_path"]
+outfile_headers = config.data["report"]["outfile_headers"]
+sheet_filename = config.data["report"]["sheet_filename"]
+statuses = config.data["report"]["statuses"]
+
 service = get_service()
 drive_service = get_service(type='drive')
 sheets_service = get_service(type='sheets')

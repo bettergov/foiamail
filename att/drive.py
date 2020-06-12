@@ -4,12 +4,11 @@ handles uploading files to Drive
 from __future__ import print_function
 from apiclient.http import MediaFileUpload
 from auth.auth import get_service
+from config import config
 
 
-### START CONFIG ###
-atts_drive_folder_name = 'agency_attachments'
-buffer_path = '/tmp/'  # TODO put in a project config file, import in gm
-### END CONFIG ###
+buffer_path = config.data["att"]["buffer_path"]
+atts_drive_folder_name = config.data["att"]["drive"]["atts_drive_folder_name"]
 
 drive_service = get_service(type='drive')
 

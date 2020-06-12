@@ -13,18 +13,11 @@ from datetime import datetime
 import os
 import shutil
 
-### START CONFIG ###
-log_dir = 'log/logs/'
-logfiles = {
-    'stdout': '',
-    'auth': 'auth.csv',
-    'contact': 'contact.csv',
-    'msg': 'msg.csv',
-    'label': 'label.csv',
-    'report': 'report.csv',
-    'att': 'att.csv',
-}
-### END CONFIG ###
+from config import config
+
+
+log_dir = config.data["log"]["log_dir"]
+logfiles = config.data["log"]["logfiles"]
 
 
 def get_logpath(logtype):

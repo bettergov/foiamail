@@ -13,6 +13,10 @@
 *.pdf
 msg/foia.md
 
+# project configs
+config/*.yml
+config/*.yaml
+
 # python temporary files
 *.pyc
 __pycache__

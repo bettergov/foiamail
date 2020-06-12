@@ -17,21 +17,13 @@ from oauth2client.client import AccessTokenRefreshError
 from oauth2client.client import OAuth2WebServerFlow
 import gdata.contacts.client
 
+from config import config
 
-### START CONFIG ###
-client_id_path = 'auth/client_secret.json'
-credential_path = 'auth/credentials.dat'
-# some of these may be redundant
-scopes = (
-    'https://www.googleapis.com/auth/gmail.labels',
-    'https://www.google.com/m8/feeds',
-    'https://www.googleapis.com/auth/gmail.compose',
-    'https://mail.google.com/',
-    'https://www.googleapis.com/auth/spreadsheets',
-    'https://www.googleapis.com/auth/drive',
-)
-debug = True
-### END CONFIG ###
+
+client_id_path = config.data["auth"]["client_id_path"]
+credential_path = config.data["auth"]["credential_path"]
+scopes = config.data["auth"]["scopes"]
+debug = config.data["auth"]["debug"]
 
 # setup
 storage = Storage(credential_path)

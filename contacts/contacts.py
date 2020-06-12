@@ -14,14 +14,12 @@ from time import sleep
 from log import log
 
 from msg.utils import user_input
+from config import config
 
 
-### START CONFIG ###
-#infile_path      = 'contacts/bga_contacts.csv'
-infile_path = 'contacts/contacts.csv'
-test_infile_path = 'contacts/test-contacts.csv'
-test = False
-### END CONFIG ###
+infile_path = config.data["contacts"]["infile_path"]
+test_infile_path = config.data["contacts"]["test_infile_path"]
+test = config.data["contacts"]["test"]
 
 
 # test allows you to send sample FOIAs to test email addresses

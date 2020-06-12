@@ -26,22 +26,16 @@ from auth import auth
 from contacts.contacts import get_contacts_by_agency
 from msg.utils import agency_slug, user_input
 from msg.label import label_agency
+from config import config
 
 
-# TODO: move all this into separate configs (JSON/YAML files?)
-# TODO: proper markdown -> plaintext support. right now this
-# just removes <br/> tags and assumes the md is already email text
-### START CONFIG ###
-foia_doc       = 'msg/foia.md'
-# Uncomment the below line for original FOIA message functionality, note
-# the DOCX list bug -- lists will be missing from your final FOIA message
-# so make sure to not use them
-# foia_doc       = 'msg/foia.docx'
-interval       = 1 # seconds
-subject        = ' Non-commercial FOIA'
-me             = 'me'
-logtype        = 'msg'
-### END CONFIG ###
+foia_doc = config.data["msg"]["compose"]["foia_doc"]
+interval = config.data["msg"]["compose"]["interval"]
+subject = config.data["msg"]["compose"]["subject"]
+subject_add_method = config.data["msg"]["compose"]["subject_add_method"]
+me = config.data["msg"]["compose"]["me"]
+logtype = config.data["msg"]["compose"]["logtype"]
+
 service = auth.get_service()
 
 
@@ -129,7 +123,14 @@ def prep_agency_drafts(contacts_by_agency=None):
             )
             slug = agency_slug(agency)
             body = foia_text + '\r\n\r\n' + slug
-            slug_subject = agency.title() + subject
+            if subject_add_method == 'append':
+                slug_subject = agency.title() + subject
+            elif subject_add_method == 'prepend':
+                slug_subject = subject + agency.title()
+            else:
+                raise ValueError(
+                    "Config subject_add_method should be 'append' or 'prepend'"
+                )
             contacts = ','.join(contacts_by_agency[agency])
             draft = {
                 "agency": agency,

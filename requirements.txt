@@ -32,4 +32,4 @@ six==1.11.0
 uritemplate==3.0.0
 markdown==3.1.1
 weasyprint==0.42.0
-html2text==2020.1.16
+pyyaml==5.3.1

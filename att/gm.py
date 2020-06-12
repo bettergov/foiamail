@@ -14,11 +14,10 @@ from att.drive import (
     get_or_create_atts_folder, check_if_drive, make_drive_folder,
     upload_to_drive
 )
+from config import config
 
-### START CONFIG ###
-buffer_path = '/tmp/'
-upload_despite_marked_done = True
-### END CONFIG ###
+
+buffer_path = config.data["att"]["buffer_path"]
 
 gmail_service = get_service(type='gmail')
 
@@ -42,7 +41,7 @@ def roll_thru():
         try:
             threads = get_threads(agency)
             if not check_if_done(threads, agency):
-                print('skipping despite attachments (not marked done)', agency)
+                print("skipping '%s' (not marked done)" % (agency))
                 continue
 
             # don't create a bunch of blank directories every time we get
