@@ -54,7 +54,9 @@ def distribute(send=False):
     retry = True
     drafts = prep_agency_drafts()
     if send and sanity_check(drafts):
-        ready = user_input('drafts created. inspect and type "send" to distribute')
+        ready = user_input(
+            'drafts created. inspect and type "send" to distribute: '
+        )
         if ready.lower() == 'send':
             while retry:
                 original_draft_len = len(drafts)
@@ -113,7 +115,7 @@ def prep_agency_drafts(contacts_by_agency=None):
     delete_drafts()
     # then create new drafts
     print(('agencies to be prepped:', list(contacts_by_agency.keys())))
-    pd = user_input('prep drafts now? [y/N]')
+    pd = user_input('prep drafts now? [y/N]: ')
     if pd.lower() == 'y':
         drafts = []
         date = datetime.now().date().strftime("%a, %b %d, %Y")
@@ -153,7 +155,7 @@ def sanity_check(drafts):
     """
     print(drafts)
     print(('len(drafts)', len(drafts)))
-    verify = user_input('Everything ready? [y/N]')
+    verify = user_input('Everything ready? [y/N]: ')
     return verify in ['Y', 'y']
 
 
@@ -227,7 +229,12 @@ def load_foia_text(**kwarg_replacements):
 
 
 def load_foia_pdf(foia_text):
-    foia_html = markdown.markdown(foia_text.replace("#", "\\#"))
+    # strip slug from PDF, it looks spammy
+    foia_noslug = "\r\n".join([
+        line for line in foia_text.split("\r\n")
+        if not re.match("^#[A-Za-z0-9]+#$", line.strip())
+    ])
+    foia_html = markdown.markdown(foia_noslug)
     doc = HTML(file_obj=foia_html)
     buf = io.BytesIO()
     doc.write_pdf(target=buf)
@@ -315,7 +322,7 @@ def delete_drafts(draft_ids=None):
         drafts = get_drafts()
         draft_ids = [x['id'] for x in drafts if type(drafts) == list]  # hack
     print(('len(draft_ids)', len(draft_ids)))
-    dd = user_input('existing drafts found ... delete ?[y/N]')
+    dd = user_input('existing drafts found ... delete? [y/N]: ')
     if dd.lower() == 'y':
         print(drafts)
         for draft_id in draft_ids:

@@ -37,7 +37,7 @@ def load_contacts():
     """
     loads contacts via api
     """
-    user_input('creating contacts ... hit enter')
+    user_input('about to create contacts. press enter to continue...')
     for contact in import_contacts():
         try:
             sleep(1)
@@ -113,7 +113,7 @@ def delete_contacts(cs=None):
     don't think this works but you can do it from the UI
     """
     if not cs:
-        dac = user_input('delete ALL contacts? [y/N]')
+        dac = user_input('delete ALL contacts? [y/N]: ')
         if dac.lower == 'y':
             cs = get_contacts()
     for c in cs:

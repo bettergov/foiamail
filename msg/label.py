@@ -319,8 +319,9 @@ def delete_labels(label_ids=None):
     deletes labels
     """
     if not label_ids:
+        label_ids = []
         dal = user_input(
-            'delete ALL user labels? *this is a first-time setup thing* [y/N]'
+            'delete ALL user labels? this is a first-time setup thing [y/N]: '
         )
         if dal.lower() == 'y':
             labels = service.users().labels().list(userId='me').execute()
