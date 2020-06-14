@@ -24,7 +24,7 @@ from weasyprint import HTML
 
 from auth import auth
 from contacts.contacts import get_contacts_by_agency
-from msg.utils import agency_slug, user_input
+from msg.utils import agency_slug, user_input, error_info
 from msg.label import label_agency
 from config import config
 
@@ -307,9 +307,12 @@ def sender(draft):
         label_agency(msg, agency)
         print(('sent', sent))
     except Exception as e:
-        print(('draft.id', draft['id'], 'raised exception: ', e))
-        log.log_data(
-            'msg', [{'draft_id': draft['id'], 'agency':agency, 'exception':e}])
+        print(('draft.id', draft['id'], 'raised exception: ', error_info(e)))
+        log.log_data('msg', [{
+            'draft_id': draft['id'],
+            'agency': agency,
+            'exception': error_info(e)
+        }])
     sleep(interval)
 
 

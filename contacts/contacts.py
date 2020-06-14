@@ -13,7 +13,7 @@ import gdata.contacts.data
 from time import sleep
 from log import log
 
-from msg.utils import user_input
+from msg.utils import user_input, error_info
 from config import config
 
 
@@ -52,7 +52,7 @@ def load_contacts():
             contact_entry = gd_client.CreateContact(new_contact)
             print('new contacts', contact_entry)
         except Exception as e:
-            print('problem with', contact['email'], e)
+            print('problem with', contact['email'], error_info(e))
             log.log_data('contact', contact)
 
 

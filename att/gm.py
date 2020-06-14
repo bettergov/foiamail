@@ -9,6 +9,7 @@ import traceback
 
 from auth.auth import get_service
 from msg.label import agencies, get_atts
+from msg.utils import error_info
 from report.response import get_threads, get_status
 from att.drive import (
     get_or_create_atts_folder, check_if_drive, make_drive_folder,
@@ -65,8 +66,7 @@ def roll_thru():
                     upload_to_drive(att, drive_folder)
                     os.remove(path)
         except Exception as e:
-            err = "%s: %s" % (e, traceback.format_exc()).replace("\n", "\\n ")
-            print(agency, 'failed', err)
+            print(agency, 'failed', error_info(e))
 
 
 def check_if_done(threads, agency):

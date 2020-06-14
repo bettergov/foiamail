@@ -11,7 +11,7 @@ from datetime import datetime
 from auth import auth
 from contacts import contacts
 from log import log
-from msg.utils import agency_slug, user_input
+from msg.utils import agency_slug, user_input, error_info
 
 from config import config
 
@@ -73,9 +73,7 @@ def check_labels(msg):
             id=msg['id'], userId='me'
         ).execute()
     except Exception as e:
-        print(e)
-        import ipdb
-        ipdb.set_trace()
+        print(error_info(e))
     req_status = check_req_status(msg)
     agency = check_agency_status(msg)
     return {'msg': msg, 'req_status': req_status, 'agency': agency}
@@ -248,8 +246,7 @@ def update_labels(msg_queue):
             print('labels', x['msg']['id'], x['agency'], x['req_status'])
             #log.log_data('label',[{'msg_id':msg['id'],'agency':x['agency'] if x['agency'] else 'unidentified','status':x['req_status']}])
         except Exception as e:
-            print(e)
-            #import ipdb; ipdb.set_trace()
+            print(error_info(e))
 
 
 def label_agency(msg, agency):

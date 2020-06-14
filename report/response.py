@@ -14,6 +14,7 @@ import csv
 
 from auth.auth import get_service
 from msg.label import agencies, lookup_label
+from msg.utils import error_info
 from att.drive import check_if_drive
 from config import config
 
@@ -61,7 +62,7 @@ def roll_thru(agencies, outcsv):
         try:
             status = get_status(threads, agency) if threads else None
         except Exception as e:
-            print(e)
+            print(error_info(e))
             status = 'error'
         thread_urls = get_thread_urls(threads) if threads else None
         row = {'agency': agency, 'status': status, 'threads': thread_urls}
@@ -79,9 +80,11 @@ def get_threads(agency):
     agency_label_id = lookup_label('agency/' + agency)
     if agency_label_id:
         try:
-            return service.users().threads().list(userId='me', labelIds=agency_label_id).execute()['threads']
+            return service.users().threads().list(
+                userId='me', labelIds=agency_label_id
+            ).execute()['threads']
         except Exception as e:
-            print(agency, e)
+            print(agency, error_info(e))
 
 
 def get_status(threads, agency):
