@@ -6,9 +6,12 @@ deploy:
 
 docker_build:
 	docker build . -t ${PROJNAME}
+	docker volume create ${PROJNAME}_logs
 
 docker_start:
-	docker run -d -t ${PROJNAME}
+	docker run \
+		--mount source=${PROJNAME}_logs,target=/home/ubuntu/foiamail/log/logs \
+		-d -t ${PROJNAME}
 
 docker_stop:
 	docker stop $$(docker ps | grep ${PROJNAME} | awk '{print $$1}')
