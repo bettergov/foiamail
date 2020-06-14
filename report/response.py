@@ -137,8 +137,10 @@ def get_or_create_log(name=sheet_filename):
     if log_query:
         log = log_query[0]
     else:
-        log = drive_service.files().create(body={'name': sheet_filename,
-                                                 'mimeType': 'application/vnd.google-apps.spreadsheet'}).execute()
+        log = drive_service.files().create(body={
+            'name': sheet_filename,
+            'mimeType': 'application/vnd.google-apps.spreadsheet'
+        }).execute()
     return log
 
 
@@ -149,13 +151,15 @@ def write_to_log(data):
     """
     # get/create and clear
     log = get_or_create_log()
-    list(sheets_service.spreadsheets().values()).clear(
-        spreadsheetId=log['id'], range='Sheet1', body={}).execute()
+    sheets_service.spreadsheets().values().clear(
+        spreadsheetId=log['id'], range='Sheet1', body={}
+    ).execute()
     # headers
     values = [outfile_headers]
     # data
     for row in data:
         values.append([row['agency'], row['status'], row['threads']])
     body = {'values': values}
-    result = list(sheets_service.spreadsheets().values()).update(
-        spreadsheetId=log['id'], range='Sheet1', valueInputOption='RAW', body=body).execute()
+    result = sheets_service.spreadsheets().values().update(
+        spreadsheetId=log['id'], range='Sheet1', valueInputOption='RAW', body=body
+    ).execute()
