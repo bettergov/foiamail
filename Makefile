@@ -18,3 +18,5 @@ docker_stop:
 
 docker_attach:
 	docker exec -t -i  $$(docker ps | grep foiamail | head -n 1 | awk '{print $$1}')  /bin/bash
+
+docker_rebuild: docker_stop docker_build docker_start
