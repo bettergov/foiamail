@@ -347,9 +347,12 @@ def create_labels(labels=None):
         labels += statuses
     for label in labels:
         print('creating label', label)
-        service.users().labels().create(
-            userId='me', body=make_label(label)
-        ).execute()
+        try:
+            service.users().labels().create(
+                userId='me', body=make_label(label)
+            ).execute()
+        except Exception as e:
+            print("Skipping label %s: %s" % (label, e))
 
 
 def make_label(label_text):
