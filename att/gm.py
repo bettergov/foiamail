@@ -38,6 +38,7 @@ def roll_thru():
     """
     atts_drive_folder = get_or_create_atts_folder()
     for agency in agencies:
+        # no apostrophes allowed
         clean_agency = agency.replace("'", "")
         try:
             threads = get_threads(agency)
@@ -48,7 +49,7 @@ def roll_thru():
             # don't create a bunch of blank directories every time we get
             # a response (whether or not we have an attachment)
             drive_folder = check_if_drive(clean_agency)
-            if drive_folder:
+            if not drive_folder:
                 drive_folder = make_drive_folder(
                     clean_agency, atts_drive_folder
                 )
@@ -57,10 +58,11 @@ def roll_thru():
             atts = get_agency_atts(threads)
             if atts:
                 print(agency)
-                # no apostrophes allowed
-                drive_folder = make_drive_folder(
-                    clean_agency, atts_drive_folder
-                )
+                # again, don't create duplicate folders here either!
+                if not drive_folder:
+                    drive_folder = make_drive_folder(
+                        clean_agency, atts_drive_folder
+                    )
                 for att in atts:
                     path = download_buffer_file(att)
                     upload_to_drive(att, drive_folder)
