@@ -27,6 +27,7 @@ Note the following:
 
 With this information, we can connect to the EC2 instance using SSH.
 ```bash
+sudo chmod 600 PATH/MY_KEY_PAIR.pem
 ssh -i PATH/MY_KEY_PAIR.pem user@aws-instance
 ```
 
@@ -56,10 +57,11 @@ First, set the timezone.
 sudo mv /etc/localtime /etc/localtime.bk
 sudo cp /usr/share/zoneinfo/America/Chicago /etc/localtime
 # Use the following to reset to UTC
-sudo dpkg-reconfigure --frontend noninteractive tzdata
+# sudo dpkg-reconfigure --frontend noninteractive tzdata
 ```
 
 ```bash
+sudo apt update
 sudo apt install python-setuptools 
 sudo easy_install pip  
 sudo pip install virtualenv 
