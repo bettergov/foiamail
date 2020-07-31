@@ -71,7 +71,7 @@ sudo apt-get install python-dev gcc
 
 ## code requirements
 ```bash
-git clone https://github.com/mattkiefer/foiamail.git
+git clone https://github.com/bettergov/foiamail.git
 ```
 
 ## python requirements
