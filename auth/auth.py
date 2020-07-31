@@ -105,7 +105,7 @@ def test_cred(credentials=get_cred()):
     # drive
     drive_service = get_service(type='drive')
     results = drive_service.files().list(pageSize=10,fields="nextPageToken, files(id, name)").execute()
-    if results.get('files'): print 'drive success'
+    if 'files' in results: print 'drive success'
     else: print 'drive fail'
 
     # sheets
