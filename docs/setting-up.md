@@ -63,7 +63,7 @@ sudo cp /usr/share/zoneinfo/America/Chicago /etc/localtime
 ```bash
 sudo apt update
 sudo apt install python-setuptools 
-sudo easy_install pip  
+sudo apt install python-pip  
 sudo pip install virtualenv 
 sudo apt-get update
 sudo apt-get install python-dev gcc 
