@@ -53,10 +53,12 @@ if send_drafts:
 
 # cron
 if cron_label:
+    print("Running labeler...")
     label.msgs_job()
 
 
 if cron_atts:
+    print("Fetching attachments...")
     gm.roll_thru()
 
 

@@ -178,7 +178,11 @@ def check_agency_hashtag(msg):
         id=msg['id'], userId='me', format='raw'
     ).execute()
     body = base64.urlsafe_b64decode(msg['raw'].encode('ASCII'))
-    em = email.message_from_string(body)
+    try:
+        em = email.message_from_string(body)
+    except TypeError:
+        em = email.message_from_string(body.decode("utf-8"))
+
     if em.get_content_maintype() == 'multipart':
         match = recursive_match_scan(em)
     else:

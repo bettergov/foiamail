@@ -82,9 +82,10 @@ def get_threads(agency):
     agency_label_id = lookup_label('agency/' + agency)
     if agency_label_id:
         try:
-            return service.users().threads().list(
+            threads_resp = service.users().threads().list(
                 userId='me', labelIds=agency_label_id
-            ).execute()['threads']
+            ).execute()
+            return threads_resp.get('threads', [])
         except Exception as e:
             print(agency, error_info(e))
 
@@ -95,14 +96,15 @@ def get_status(threads, agency):
     found in the specified threads
     """
     agency_statuses = set()
-    for t in threads:
-        thread = service.users().threads().get(
-            userId='me', id=t['id']).execute()
-        for m in thread['messages']:
-            for lid in m['labelIds']:
-                label = service.users().labels().get(userId='me', id=lid).execute()
-                if label['name'] in statuses:
-                    agency_statuses.add(label['name'])
+    if threads:
+        for t in threads:
+            thread = service.users().threads().get(
+                userId='me', id=t['id']).execute()
+            for m in thread['messages']:
+                for lid in m['labelIds']:
+                    label = service.users().labels().get(userId='me', id=lid).execute()
+                    if label['name'] in statuses:
+                        agency_statuses.add(label['name'])
     # TODO: loop thru statuses list (in desc order of precedence)
     if check_if_drive(agency.replace("'", "")):  # no apostrophes allowed
         return 'shipped'
@@ -116,6 +118,8 @@ def get_status(threads, agency):
         return 'responded'
     elif 'SENT' in agency_statuses:
         return 'sent'
+    elif '*data-installment-attached' in agency_statuses:
+        return 'installment'
     else:
         return 'no status available'
 

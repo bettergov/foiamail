@@ -73,10 +73,10 @@ def roll_thru():
 
 def check_if_done(threads, agency):
     """
-    checks if this agency's threads
-    include any messages labeled 'done'
+    checks if this agency's threads include any messages labeled 'done' or
+    'installment'
     """
-    return get_status(threads, agency) == 'done'
+    return get_status(threads, agency) in ['done', 'installment']
 
 
 def get_agency_atts(threads):
@@ -111,7 +111,12 @@ def download_buffer_file(att):
         id=att['att_id'], messageId=att['msg_id'], userId='me').execute()
     file_data = base64.urlsafe_b64decode(attachment['data'].encode('UTF-8'))
     buffer_file_path = buffer_path + att['file_name']
-    buffer_file = open(buffer_file_path, 'w')
-    buffer_file.write(file_data)
-    buffer_file.close()
+    try:
+        buffer_file = open(buffer_file_path, 'w')
+        buffer_file.write(file_data)
+        buffer_file.close()
+    except TypeError:
+        buffer_file = open(buffer_file_path, 'wb')
+        buffer_file.write(file_data)
+        buffer_file.close()
     return buffer_file_path

@@ -1,7 +1,8 @@
 PROJNAME=foiamail
 
 deploy:
-	rsync -avC --exclude='*.pyc'  --progress --delete \
+	rsync -avC --exclude='*.pyc' --exclude='report/reports/response.csv' \
+		--progress --delete \
 		./ $${DEPLOY_USER}@$${DEPLOY_HOST}:$${DEPLOY_DIR}
 
 docker_build:
