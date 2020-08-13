@@ -13,6 +13,7 @@ from datetime import datetime
 # acceptable types of attachment for labeling and shipping purposes
 att_exts = ['txt','csv','xls','xlsx','pdf','xlsm','xlt','ods','xlsb'] 
 statuses = ['*unidentified','*responded','*attachment','*done','*NA']
+maxResults = 999 # tune for query optimization
 ### END CONFIG ###
 
 service = auth.get_service()
@@ -44,7 +45,13 @@ def select_unlabeled_msgs(date=None):
         date = datetime.now()
     date = date.strftime('%Y/%m/%d')
     query = 'after:' + date
-    return service.users().messages().list(userId='me',q=query).execute()['messages']
+    response = service.users().messages().list(userId='me',q=query,maxResults=maxResults).execute()
+    messages = response['messages']
+    while 'nextPageToken' in response:
+        page_token = response['nextPageToken']
+        response = service.users().messages().list(userId='me',q=query,maxResults=maxResults,pageToken=page_token).execute()
+        messages.extend(response['messages'])
+    return messages
 
 def check_labels(msg):
     """
