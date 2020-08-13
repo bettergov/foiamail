@@ -14,7 +14,8 @@ ipython -i mgr.py
 ```
 
 ```python
-# load contacts directly in Gmail
+# load contacts directly in Gmail,
+# then wait several minutes
 
 # then generate labels
 init_labels()
