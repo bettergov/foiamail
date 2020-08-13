@@ -1,4 +1,5 @@
 # foimail
+![foiamail art by lucas ian smith](https://github.com/bettergov/foiamail/blob/master/IMG_0441_01.jpg)
 A framework for mass FOIA campaigns. Distribute public records requests, manage responses and organize file attachments using GMail, Sheets and Drive.
 
 Technically, it's a bunch of a API calls on cron.
