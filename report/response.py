@@ -70,7 +70,7 @@ def roll_thru(agencies, outcsv):
         print(row)
         outcsv.writerow(row)
     sorted_rows = sorted(
-        rows, key=lambda x: (x.get('status',''), x.get('agency',''))
+        rows, key=lambda x: (x.get('status') or '', x.get('agency') or '')
     )
     write_to_log(sorted_rows)
 
