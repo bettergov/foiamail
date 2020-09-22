@@ -6,7 +6,7 @@ from __future__ import print_function
 import re
 import base64
 import email
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from auth import auth
 from contacts import contacts
@@ -49,7 +49,7 @@ def select_unlabeled_msgs(date=None):
     e.g. date: datetime.datetime.strptime('2018/04/13','%Y/%m/%d')
     """
     if not date:
-        date = datetime.now()
+        date = datetime.now() - timedelta(days=1)
     date = date.strftime('%Y/%m/%d')
     query = 'after:' + date
     response = service.users().messages().list(userId='me',q=query,maxResults=maxResults).execute()
@@ -223,10 +223,11 @@ def split_and_check(text):
             text = base64.urlsafe_b64decode(text)
         except:
             pass
-    for chunk in text.split('#'):
-        if '#' + chunk + '#' in slugs:
-            return chunk
-    for chunk in text.split('#'):
+    try:
+        chunks = text.split('#')
+    except TypeError:
+        chunks = text.decode('utf-8').split('#')
+    for chunk in chunks:
         if '#' + chunk + '#' in slugs:
             return chunk
 
