@@ -30,7 +30,10 @@ RUN dpkg-reconfigure --frontend noninteractive tzdata
 RUN apt install -y
 
 COPY . /home/ubuntu/foiamail
-RUN cat crontab >> /etc/crontab
+
+RUN echo '*/15 7-19 * * *    root  cd /home/ubuntu/foiamail && . bin/activate && python mgr.py --label >> /home/ubuntu/foiamail/log/logs/cron-label 2>&1' >> /etc/crontab
+RUN echo '0 0 * * *          root  cd /home/ubuntu/foiamail && . bin/activate && python mgr.py --atts >> /home/ubuntu/foiamail/log/logs/cron-atts 2>&1' >> /etc/crontab
+RUN echo '0 5 * * *          root  cd /home/ubuntu/foiamail && . bin/activate && python mgr.py --report >> /home/ubuntu/foiamail/log/logs/cron-report 2>&1' >> /etc/crontab
 
 RUN pip install -r /home/ubuntu/foiamail/requirements.txt
 RUN pip install -r /home/ubuntu/foiamail/requirements.py3.txt
