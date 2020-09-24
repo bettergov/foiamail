@@ -226,7 +226,12 @@ def split_and_check(text):
     try:
         chunks = text.split('#')
     except TypeError:
-        chunks = text.decode('utf-8').split('#')
+        try:
+            chunks = text.decode('utf-8').split('#')
+        # if we explode and end up here, we have some kind of
+        # a binary format or non-UTF8
+        except UnicodeDecodeError:
+            return None
     for chunk in chunks:
         if '#' + chunk + '#' in slugs:
             return chunk
