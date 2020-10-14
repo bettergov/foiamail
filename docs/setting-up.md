@@ -132,7 +132,7 @@ From the dashboard, follow this series of menu options:
     - enter application name
     - if a dialog opens, close it, you should be on credentials page
     - find OAuth 2.0 row and click download icon
-    - save file as `auth/client_secret.json` inside the `foiamail` directory
+    - save file as `config/client_secret.json` inside the `foiamail` directory
 
 ### Authorize Google APIs
 
@@ -166,32 +166,40 @@ python mgr.py --get-cred
 
 Follow the instructions to copy/paste the link into a browser, accept the requested permissions, and then enter the verification code found on the screen into the program. You'll probably get a "This app isn't verified" warning if you're using Chrome. Click "Advanced" and continue, ignoring the error. Make sure to allow all permissions requested.
 
-### auth
+### Auth
 The `auth` module works behind the scenes in every other FOIAMail module. The wrapper functions, `get_service()` and `get_gd_client()`, are called by Contacts, GMail, Drive and Sheets APIs to authenticate requests.  
 
 The auth module depends on the `credentials.dat` file to verify requests.
 
-Verify authorization:
+Verify authorization (via Python shell):
 
 ```python
 from auth.auth import test_cred
 test_cred()
 ```
 
+Or command line:
+
+```bash
+python mgr.py --test-cred
+```
+
 ## Importing/Updating Contacts
 
-The app handles contacts through the [Gmail Contacts screen](https://contacts.google.com/). Read Google's own documentation for [how to import contacts](https://support.google.com/contacts/answer/1069522).
+The app handles contacts through [Google Contacts](https://contacts.google.com/). Read Google's own documentation for [how to import contacts](https://support.google.com/contacts/answer/1069522).
 
-Note that for a contact to be recognized by the app, the contact needs to have an **organization** filled in. The app will draft messages for **all** contacts with organizations.
+There's a template available, `config/contacts.csv`, that you can use to fill in agency contacts and import into Google Contacts.
+
+Note that for a contact to be recognized and auto-labeled by the app, the contact needs to have an **organization** filled in (`Organization 1 - Name` field from the contact CSV). The app will draft messages for **all** contacts with organizations, regardless.
 
 ## Importing a FOIA Request Template
 
-A FOIA template should be saved to the `foiamail/msg` directory in one of the following formats:
+A FOIA template should be saved to the `config/` directory in one of the following formats:
 
 - [Markdown document](https://daringfireball.net/projects/markdown/basics) `.md` (supports replacement variables and auto creates and attaches a PDF of your request upon draft creation)
 - Microsoft Word document `.docx` (WARNING: do not use lists in your template!)
 
-The template should be referenced in the `foia_doc` variable in the `msg` section of your `config/config.yaml` configuration file.  
+The template should be referenced in the `foia_doc` variable in the `msg` section of your `config/config.yaml` configuration file.  By default, FOIAmail looks for a `config/foia.md` file.
 
 This template file will be imported when drafting FOIA messages. Templates support the following variables that will be replaced for each contact upon creation of the draft:
 

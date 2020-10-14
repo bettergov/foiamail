@@ -12,7 +12,9 @@ First, set up your server, environment, credentials and FOIA template (see [sett
 
 Once the server, environment, repository and credentials are set up, use `mgr.py` to initialize the application.
 
-Load contacts directly in Gmail via the import contacts CSV option. Then wait several minutes (it can take a while for all the contacts to load). When your contacts are loaded, build agency labels for your contacts:
+Load contacts directly in Gmail via the import contacts CSV option. See [docs/technical.md](docs/technical.md) for detailed walkthrough of the full FOIAmail workflow for importing contacts.
+
+When your contacts are loaded, build agency labels for your contacts:
 
 ```bash
 python mgr.py --build-labels
@@ -30,7 +32,7 @@ Once everything looks good, you can send them out with this command:
 python mgr.py --send-drafts
 ```
 
-(The `--build-drafts` and `--send-srafts` will re-create the drafts each time, so make sure you delete them when prompted.)
+(The `--build-drafts` and `--send-drafts` will re-create the drafts each time, so make sure you delete them when prompted.)
 
 ## Monitoring Responses
 

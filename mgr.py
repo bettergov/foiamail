@@ -8,6 +8,7 @@ from contacts import contacts
 from sys import argv
 from report import response
 from att import gm
+
 cron_label = '--label' in argv
 cron_atts = '--atts' in argv
 cron_report = '--report' in argv
@@ -16,6 +17,7 @@ send_drafts = '--send-drafts' in argv
 build_labels = '--build-labels' in argv
 delete_labels = '--delete-labels' in argv
 get_cred = '--get-cred' in argv
+test_cred = '--test-cred' in argv
 
 
 def init_contacts(delete=False):
@@ -34,7 +36,12 @@ def init_labels(delete=False):
 def init_msgs(send=False):
     compose.distribute(send=send)
     if not send:
-        print('send with init_msgs(send=True)')
+        print("Drafts prepared! Check them in GMail, in the drafts folder.")
+    if not send and not build_drafts:
+        print('Send drafts with: init_msgs(send=True)')
+    # show a CLI-specific message
+    elif not send and build_drafts:
+        print('Send drafts with: python mgr.py --send-drafts')
 
 
 if build_labels:
@@ -70,3 +77,12 @@ if cron_report:
 
 if get_cred:
     from auth.auth import get_cred
+    from auth.auth import test_cred
+    print("Testing credentials...")
+    test_cred()
+
+
+if test_cred:
+    from auth.auth import test_cred
+    print("Testing credentials...")
+    test_cred()

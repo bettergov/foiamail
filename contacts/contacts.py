@@ -30,6 +30,7 @@ test = config.data["contacts"]["test"]
 # https://github.com/mattkiefer/foiamail/issues/29
 if test:
     infile_path = test_infile_path
+
 gd_client = auth.get_gd_client()
 
 

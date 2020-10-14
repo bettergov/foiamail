@@ -14,8 +14,12 @@
 msg/foia.md
 
 # project configs
-config/*.yml
-config/*.yaml
+!config/
+config/*
+!config/contacts_template.csv
+!config/config.example.yaml
+!config/foia.example.yaml
+!config/foia.example.docx
 
 # python temporary files
 *.pyc

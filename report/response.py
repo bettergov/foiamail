@@ -112,14 +112,16 @@ def get_status(threads, agency):
         return 'NA'
     elif '*done' in agency_statuses:
         return 'done'
+    elif '*installment' in agency_statuses:
+        return 'installment'
+    elif '*data-installment-attached' in agency_statuses:
+        return 'installment'
     elif '*attachment' in agency_statuses:
         return 'attachment'
     elif '*responded' in agency_statuses:
         return 'responded'
     elif 'SENT' in agency_statuses:
         return 'sent'
-    elif '*data-installment-attached' in agency_statuses:
-        return 'installment'
     else:
         return 'no status available'
 

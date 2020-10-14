@@ -51,33 +51,33 @@ def distribute(send=False):
     - previous attempts successfully sent 1 or more drafts
     *** retry logic is untested ***
     """
-    retry = True
     drafts = prep_agency_drafts()
     if send and sanity_check(drafts):
         ready = user_input(
             'drafts created. inspect and type "send" to distribute: '
         )
         if ready.lower() == 'send':
-            while retry:
+            while True:
                 original_draft_len = len(drafts)
                 for draft in drafts:
-                    print(('sending', draft))
+                    print('Sending', draft)
                     sender(draft)
                 # make sure everything sent, or else retry
+                print("FOIAmail will try to re-create any unsent messages...")
                 drafts = prep_agency_drafts()
                 if drafts and len(drafts) < original_draft_len:
-                    print((len(drafts), 'drafts remaining ... retrying'))
+                    print(len(drafts), 'drafts remaining ... retrying')
                     continue
                 elif not drafts:
-                    retry = False
                     print('distribution complete.')
+                    break
                 elif drafts and len(drafts) == original_draft_len:
                     # drafts aren't sending, it's a lost cause. avoid infinite
                     # loop
-                    retry = False
-                    print(('distribution incomplete:', len(drafts), 'unsent'))
+                    print('distribution incomplete:', len(drafts), 'unsent')
+                    break
                 else:
-                    retry = False
+                    break
         else:
             print('aborting')
 
@@ -114,7 +114,7 @@ def prep_agency_drafts(contacts_by_agency=None):
     # first delete existing drafts
     delete_drafts()
     # then create new drafts
-    print(('agencies to be prepped:', list(contacts_by_agency.keys())))
+    print('agencies to be prepped:', list(contacts_by_agency.keys()))
     pd = user_input('prep drafts now? [y/N]: ')
     if pd.lower() == 'y':
         drafts = []
@@ -154,7 +154,7 @@ def sanity_check(drafts):
     look before you leap
     """
     print(drafts)
-    print(('len(drafts)', len(drafts)))
+    print('Drafts found:', len(drafts))
     verify = user_input('Everything ready? [y/N]: ')
     return verify in ['Y', 'y']
 
@@ -305,9 +305,9 @@ def sender(draft):
             userId='me', id=sent['threadId']).execute()
         msg = thread['messages'][0]
         label_agency(msg, agency)
-        print(('sent', sent))
+        print('sent', sent)
     except Exception as e:
-        print(('draft.id', draft['id'], 'raised exception: ', error_info(e)))
+        print('draft.id', draft['id'], 'raised exception: ', error_info(e))
         log.log_data('msg', [{
             'draft_id': draft['id'],
             'agency': agency,
@@ -324,7 +324,9 @@ def delete_drafts(draft_ids=None):
         # check for existence of drafts
         drafts = get_drafts()
         draft_ids = [x['id'] for x in drafts if type(drafts) == list]  # hack
-    print(('len(draft_ids)', len(draft_ids)))
+    print('Existing drafts found:', len(draft_ids))
+    if not len(draft_ids):
+        return
     dd = user_input('existing drafts found ... delete? [y/N]: ')
     if dd.lower() == 'y':
         print(drafts)
