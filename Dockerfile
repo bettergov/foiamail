@@ -36,7 +36,6 @@ RUN echo '0 0 * * *          root  cd /home/ubuntu/foiamail && . bin/activate &&
 RUN echo '0 5 * * *          root  cd /home/ubuntu/foiamail && . bin/activate && python mgr.py --report >> /home/ubuntu/foiamail/log/logs/cron-report 2>&1' >> /etc/crontab
 
 RUN pip install -r /home/ubuntu/foiamail/requirements.txt
-RUN pip install -r /home/ubuntu/foiamail/requirements.py3.txt
 
 FROM deps as base
 

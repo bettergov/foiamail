@@ -87,7 +87,9 @@ sudo apt-get install python-dev gcc
 git clone https://github.com/bettergov/foiamail.git
 ```
 
-## python requirements
+## Python requirements
+
+Python 3.6 is recommended.
 
 ```bash
 sudo apt install python-pip
@@ -97,9 +99,10 @@ virtualenv ./
 pip install -r requirements.txt
 ```
 
-If you're running Python 3 also run this:
+If you're running Python 2 (WARNING: Unsupported as of Jan 1, 2020) you need to run this (instead of the `requirements.txt`, above):
+
 ```bash
-pip install -r requirements.py3.txt
+pip install -r requirements.py2.txt
 ```
 
 ## Google Requirements
