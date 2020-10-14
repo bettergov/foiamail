@@ -11,6 +11,7 @@ A FOIA template should be saved to the `foiamail/msg` directory in `.md` (markdo
 
 This template file will be imported when drafting FOIA messages.
 
+If you choose a Markdown template, a PDF will also be created and attached to your FOIA drafts, in addition to the body of the email containing your FOIA message.
 
 ## creating drafts
 The FOIAMail application creates one draft for each agency. These drafts are based off the above-referenced template and are identical with the following exceptions:

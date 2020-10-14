@@ -10,7 +10,7 @@ docker_build:
 	docker build . -t ${PROJNAME}
 	docker volume create ${PROJNAME}_logs
 
-docker_start:
+docker_start: docker_build
 	@echo "Starting ${PROJNAME}"
 	docker run \
 		--mount source=${PROJNAME}_logs,target=/home/ubuntu/foiamail/log/logs \

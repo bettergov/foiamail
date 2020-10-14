@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 # <3 CAT
 from __future__ import print_function
 from auth import auth
@@ -14,6 +15,7 @@ build_drafts = '--build-drafts' in argv
 send_drafts = '--send-drafts' in argv
 build_labels = '--build-labels' in argv
 delete_labels = '--delete-labels' in argv
+get_cred = '--get-cred' in argv
 
 
 def init_contacts(delete=False):
@@ -64,3 +66,7 @@ if cron_atts:
 
 if cron_report:
     response.init()
+
+
+if get_cred:
+    from auth.auth import get_cred
