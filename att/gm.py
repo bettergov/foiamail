@@ -76,7 +76,7 @@ def check_if_done(threads, agency):
     checks if this agency's threads include any messages labeled 'done' or
     'installment'
     """
-    return get_status(threads, agency) in ['done', 'installment']
+    return get_status(threads, agency) in ['done', 'installment', 'shipped']
 
 
 def get_agency_atts(threads):

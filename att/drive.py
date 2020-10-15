@@ -37,7 +37,27 @@ def check_if_drive(agency):
     has a folder in the atts folder on Drive
     """
     q = "name='" + agency + "'"
-    return drive_service.files().list(q=q).execute().get('files')
+    drive_folder = drive_service.files().list(q=q).execute().get('files')
+    # if it exists, it will be returned as a list. we want to return it
+    # in the same format that it gets returned when created -- a dict
+    if isinstance(drive_folder, list) and len(drive_folder):
+        return drive_folder[0]
+    return drive_folder
+
+
+def search_files(drive_folder, filename):
+    """
+    looks for files, by filename, in a given folder, identified
+    by the drive_folder data structure (returned from check_if_drive or
+    make_drive_folder).
+    """
+    q = "name='" + filename + "' and '" + drive_folder['id'] + "' in parents"
+    drive_folder = drive_service.files().list(q=q).execute().get('files')
+    # if it exists, it will be returned as a list. we want to return it
+    # in the same format that it gets returned when created -- a dict
+    if isinstance(drive_folder, list) and len(drive_folder):
+        return drive_folder[0]
+    return drive_folder
 
 
 def make_drive_folder(agency, atts_drive_folder):
@@ -60,7 +80,10 @@ def upload_to_drive(att, drive_folder):
     to the specified Drive folder
     """
     print('    ' + att['file_name'])
-    body = {'name': att['file_name'], 'parents': [drive_folder['id']]}
+    filename = att['file_name']
+    if search_files(drive_folder, filename):
+        return
+    body = {'name': filename, 'parents': [drive_folder['id']]}
     media_body = MediaFileUpload(buffer_path + att['file_name'])
     drive_service.files().create(
         body=body, media_body=media_body).execute()
