@@ -5,7 +5,8 @@ In order to set up FOIAmail, you'll need to do the following:
 - create a virtual machine to run the services on (AWS EC2 Ubuntu is used in this example)
 - install Python with the required dependencies
 - set up & get credentials to a Google account for sending mail, managing contacts, storing attachment and reporting (via drive)
-- import contacts and set up FOIA request template
+- Import contacts into Google
+- set up FOIA request template, configure FOIAmail (copying and editing `config/config.example.yaml` to `config/config.yaml`)
 
 This example uses an EC2 Ubuntu server but should work on any Ubuntu machine.
 
@@ -202,7 +203,7 @@ A FOIA template should be saved to the `config/` directory in one of the followi
 - [Markdown document](https://daringfireball.net/projects/markdown/basics) `.md` (supports replacement variables and auto creates and attaches a PDF of your request upon draft creation)
 - Microsoft Word document `.docx` (WARNING: do not use lists in your template!)
 
-The template should be referenced in the `foia_doc` variable in the `msg` section of your `config/config.yaml` configuration file.  By default, FOIAmail looks for a `config/foia.md` file.
+The template should be referenced in the `foia_doc` variable in the `msg` section of your `config/config.yaml` configuration file. By default, FOIAmail looks for a `config/foia.md` file.
 
 This template file will be imported when drafting FOIA messages. Templates support the following variables that will be replaced for each contact upon creation of the draft:
 

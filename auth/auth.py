@@ -8,6 +8,7 @@ that allow all other modules to work
 via wrapper functions
 """
 from __future__ import print_function
+import sys
 import httplib2
 import json
 from apiclient.discovery import build
@@ -27,7 +28,11 @@ debug = config.data["auth"]["debug"]
 
 # setup
 storage = Storage(credential_path)
-client_json = json.load(open(client_id_path))['installed']
+try:
+    client_json = json.load(open(client_id_path))['installed']
+except FileNotFoundError:
+    print("Error: %s not found. Make sure you've ran set up Google credentials correctly. Try running: ./mgr.py --get-cred" % (client_id_path))
+    sys.exit(1)
 client_id, client_secret = client_json['client_id'], client_json['client_secret']
 project_id = client_json['project_id']
 

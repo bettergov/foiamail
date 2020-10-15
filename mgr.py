@@ -1,11 +1,13 @@
 #!/usr/bin/env python
 # <3 CAT
 from __future__ import print_function
+import os
+from sys import argv
+
 from auth import auth
 from log import log
 from msg import compose, label
 from contacts import contacts
-from sys import argv
 from report import response
 from att import gm
 
