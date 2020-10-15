@@ -45,7 +45,7 @@ msg:
     logtype: 'msg'
   label:
     # acceptable types of attachment for labeling and shipping purposes
-    att_exts: ['txt', 'csv', 'xls', 'xlsx', 'pdf', 'xlsm', 'xlt', 'ods', 'xlsb', 'zip']
+    att_exts: ['txt', 'doc', 'docx', 'csv', 'xls', 'xlsx', 'pdf', 'xlsm', 'xlt', 'ods', 'xlsb', 'zip']
     statuses: ['*unidentified', '*responded', '*attachment', '*installment', '*done', '*NA']
     # tune for query optimization
     maxResults: 999
