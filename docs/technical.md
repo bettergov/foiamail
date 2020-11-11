@@ -1,29 +1,53 @@
-# importing contacts
-As of this writing, the workflow to import contacts involves uploading a csv file via the gmail ui. Use the contacts_template.csv, populating *Name* (optional), *Organization 1 - Name* and *Email 1 - Value* fields before uploading to contacts.google.com. 
+# Importing Contacts
 
-# composing/sending messages
+As of this writing, the workflow to import contacts involves uploading a csv file via the gmail ui. Use the `config/contacts_template.csv`, populating *Name* (optional), *Organization 1 - Name* and *Email 1 - Value* fields before uploading to [Google Contacts](https://contacts.google.com).
+
+By default, contacts imported via CSV end up in an isolated "Imported on MONTH/DAY" label. These are not visible to FOIAmail. Make sure to move any imported contacts "into contacts" by using the "add to contacts" button at the top of the list, from inside the created label. You have to select the contacts in order see this button.
+
+# Composing/Sending Messages
+
 Once contacts are loaded, FOIAs messages may be drafted and sent using the `msg` module.
 
-## importing a template
-A FOIA template should be saved to the `foiamail/msg` directory in .docx format and referenced in the configuration section of `compose.py`.  
+## Configuration
 
-This template file will be imported when drafting FOIA messages.
+FOIAmail support configuration via a YAML file. You should copy the example config, `config/config.example.yaml` to `config/config.yaml` and edit the options to your liking.
 
+## Importing a Template
 
-## creating drafts
-The FOIAMail application creates one draft for each agency. These drafts are based off the above-referenced template and are identical with the following exceptions:
+A FOIA template should be saved to as `config/foia.md` (markdown, default) or `config/foia.docx`. If you're not using `config/foia.md`, then set the `msg.compose.foia_doc` variable of the `config/config.yaml` configuration file to the template you're using. There's an example FOIA message `config/foia.example.md` that demonstrates using replacement variables.
+
+The template file will be imported when drafting FOIA messages.
+
+If you choose a Markdown template, a PDF will also be created and attached to your FOIA drafts, in addition to the body of the email containing your FOIA message.
+
+## Creating Drafts
+
+The FOIAMail application creates one draft for each agency. These drafts are based off the above-referenced template and are customized per-agency in the following ways:
+
 - Each draft's `To:` field includes all email contacts on file under its agency's name.
 - Each draft's `Body` field is appended with the agency_slug unique identifier. (Whitespace-stripped, title-cased, and appended/prepended by hashtags `#`, as defined in `mgs.utils`. e.g.: `#ArlingtonHeights#`)
+- If your FOIA template contains any replacement variables (e.g., `{AGENCY}` and `{DATE}`), these will be replaced with the agency name and date of draft creation, per agency.
+- If your FOIA template is a Markdown formatted file, (e.g., `config/foia.md`), then your message will *also* be converted to a PDF and attached to the request. The agency slug will not be added to the PDF.
 
 To create drafts, call the `distribute()` function in the `msg.compose` module. Leaving the keyword argument `drafts` to the default empty list, which prompts for preparation of new drafts for each agency.
+
+Via the Python shell:
 
 ```python
 from msg.compose import distribute
 distribute()
 ```
 
+Or via the command line:
 
-## sending
+```bash
+python mgr.py --build-drafts
+```
+
+## Sending FOIA Requests
+
+Once you're happy with the drafts, it's time to send them out.
+
 To send, call `msg.compose` module's `distribute()` function with `send=True`.
 
 ```python
@@ -31,14 +55,25 @@ from msg.compose import distribute
 distribute(send=True)
 ```
 
-# labeling
+Or you can do this via the command line:
+
+```bash
+python mgr.py --send-drafts
+```
+
+If there are any existing drafts existing, FOIAmail will prompt you to delete them, first. It is suggested that you do so, as the drafts are created fresh each time you run `--build-drafts` or `--send-drafts`.
+
+# Response Labeling
+
 FOIAMail attempts to label incoming messages in two taxonomies:
+
 1. name of the agency responding 
 2. status of response
 
 The `msg.label` module handles labeling for all incoming messages. The main wrapper function at work is `check_labels()`, which calls `check_req_status` and `check_agency_status()`.  
 
-## agency
+## Agency
+
 `check_agency_status()` assigns an agency name to the message thread by scanning it for the agency_slug identifier, e.g. #ArlingtonHeights#.  
 (It's worth noting that agency labels assigned to initial FOIA request messages should remain intact with standard reply messages. i.e., this is a GMail feature that doesn't depend on FOIAMail logic.)
 `check_req_status()` returns one or none of the following status labels:
@@ -46,13 +81,14 @@ The `msg.label` module handles labeling for all incoming messages. The main wrap
 - `*attachment` means the message has an attachment with an acceptable extension (e.g., xls, xlsx, csv, txt, pdf)
 
 ## status
+
 Note: There are two request statuses that are manually assigned by a team member: 
 - `*done` indicates that the agency has responded with data and the data/format appears to meet the requirements of the request
+- `*installment` indicates that the agency has responded with data and the data/format appears to meet the requirements of the request, but the request is not yet complete (more installments are coming)
 - `*NA` indicates "not applicable." i.e., the agency does not exist or has no employees, or this is a duplicate request, etc.
 
 
 \# TODO: explain labeling distinctions when it comes to messages vs threads
-
 
 
 # filing attachments
@@ -88,7 +124,7 @@ The relevant status-lookup logic is found in the `get_status()` function. This f
  
 
 ## writing to sheet
-`write_to_log()` writes the agency name, status, and links to GMail threads into a Google Sheet, as defined by Drive file name in the configuration section of the `report.reponse` module.
+`write_to_log()` writes the agency name, status, and links to GMail threads into a Google Sheet, as defined by Drive file name in the `report` section of the `config/config.yaml` config file.
 
 # management
 Commands to manage the FOIAmail workflow are found under `foiamail/mgr.py' and may be invoked manually or via cron.
@@ -129,5 +165,3 @@ Logs are configured for the following:
 - label
 - report
 - att
-
-# misc

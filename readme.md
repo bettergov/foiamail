@@ -1,29 +1,44 @@
-# foimail
+# FOIAmail
+
 ![foiamail art by lucas ian smith](https://github.com/bettergov/foiamail/blob/master/IMG_0441_01.jpg)
+
 A framework for mass FOIA campaigns. Distribute public records requests, manage responses and organize file attachments using GMail, Sheets and Drive.
 
 Technically, it's a bunch of a API calls on cron.
 
-# first-time technical setup
+# First-time technical setup
+
 First, set up your server, environment, credentials and FOIA template (see [setting up](docs/setting-up.md)).
 
-Once the server, environment and repository are set up, use `mgr.py` to initialize the application.
+Once the server, environment, repository and credentials are set up, use `mgr.py` to initialize the application.
+
+Load contacts directly in Gmail via the import contacts CSV option. See [docs/technical.md](docs/technical.md) for detailed walkthrough of the full FOIAmail workflow for importing contacts.
+
+When your contacts are loaded, build agency labels for your contacts:
 
 ```bash
-# load the manager shell
-ipython -i mgr.py
+python mgr.py --build-labels
 ```
 
-```python
-# load contacts directly in Gmail,
-# then wait several minutes
+Next, prepare drafts for your contacts. You can look through the drafts and find any errors before you send them out:
 
-# then generate labels
-init_labels()
-
-# prepare drafts and send messages
-init_msgs(send=True)
+```bash
+python mgr.py --build-drafts
 ```
+
+Once everything looks good, you can send them out with this command:
+
+```bash
+python mgr.py --send-drafts
+```
+
+(The `--build-drafts` and `--send-drafts` will re-create the drafts each time, so make sure you delete them when prompted.)
+
+## Monitoring Responses
+
+There are two ways to run the monitoring system for tagging/categorizing incoming emails, building reports and downloading responsive attachments: traditional VM using cron and Docker.
+
+### Traditional VM/Cron
 
 [Install a crontab](http://www.ubuntututorials.com/use-crontab-ubuntu/) to run the following tasks at regular intervals:
 - `mgr.py --label`, to label incoming messages by agency and status (every few minutes)
@@ -32,7 +47,23 @@ init_msgs(send=True)
 
 This is a good time to double-check the server timezone is set to America/Chicago. See [technical docs](docs/technical.md).
 
-# ongoing manual work
+### Docker
+
+There's a `Dockerfile` for running the services. If you have `make` you can simply run:
+
+```bash
+make docker_start
+```
+
+Or you can do it yourself:
+
+```bash
+docker build . -t foiamail
+docker run --mount source=foiamail_logs,target=/home/ubuntu/foiamail/log/logs -t foiamail
+```
+
+# Ongoing manual work
+
 _Verify draft FOIA messages before sending, including message count, contents, recipients and labels_  
 
 Routine checklist for operating FOIAMail:
@@ -47,5 +78,6 @@ Routine checklist for operating FOIAMail:
 - Throughout the project, particularly after the FOIA deadline has passed, use the response report to identify non-responsive agencies and go nudge them
 - Update contact information via the GMail interface as necessary
 
-# technical docs
+# Technical docs
+
 See [docs/technical.md](docs/technical.md) for detailed explanations of commands.

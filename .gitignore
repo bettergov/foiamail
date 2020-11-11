@@ -9,3 +9,30 @@
 *docx
 *pyc
 *swp
+*.bak
+*.pdf
+msg/foia.md
+
+# project configs
+!config/
+config/*
+!config/contacts_template.csv
+!config/config.example.yaml
+!config/foia.example.yaml
+!config/foia.example.docx
+
+# python temporary files
+*.pyc
+__pycache__
+
+# pyenv local version
+.python-version
+
+# direnv file for deploys
+.envrc
+
+# docs temp files
+.~*#
+
+# editor temp files
+.*.swp
