@@ -10,7 +10,6 @@ import csv
 from auth import auth
 from time import sleep
 from log import log
-from googleapiclient.errors import HttpError as google_http_error
 
 from msg.utils import user_input, error_info
 from config import config
