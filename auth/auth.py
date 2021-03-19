@@ -1,9 +1,9 @@
 """
 authentication tools for:
-- contacts
 - gmail
 - sheets
 - drive
+- people
 that allow all other modules to work
 via wrapper functions
 """
@@ -16,7 +16,6 @@ from oauth2client import tools
 from oauth2client.file import Storage
 from oauth2client.client import AccessTokenRefreshError
 from oauth2client.client import OAuth2WebServerFlow
-import gdata.contacts.client
 
 from config import config
 
@@ -59,6 +58,7 @@ def get_service(credentials=get_cred(), type='gmail'):
     - gmail
     - sheets
     - drive
+    - people
     """
     http = credentials.authorize(httplib2.Http(
         disable_ssl_certificate_validation=True))
@@ -68,35 +68,19 @@ def get_service(credentials=get_cred(), type='gmail'):
         return build('sheets', 'v4', http=http)
     elif type == 'drive':
         return build('drive', 'v3', http=http)
-
-
-def get_gd_client(credentials=get_cred()):
-    """
-    uses credentials to get a gd_client service object for
-    - contacts
-    """
-    gd_client = gdata.contacts.client.ContactsClient(source=project_id)
-    gd_token = gdata.gauth.OAuth2TokenFromCredentials(credentials)
-    gd_client.auth_token = gd_token
-    gd_token.authorize(gd_client)
-    return gd_client
+    elif type == 'people':
+        return build('people', 'v1', http=http)
 
 
 def test_cred(credentials=get_cred()):
     """
     a test function to verify auth/functionality of:
-    - contacts
     - gmail
     - drive
     - sheets
+    - people
     some of these tests may ned to be reviewed
     """
-    # contacts
-    gd_client = get_gd_client(credentials)
-    if gd_client:
-        print('contact success')
-    else:
-        print('contact fail')
 
     # gmail
     service = get_service(credentials)
@@ -118,3 +102,10 @@ def test_cred(credentials=get_cred()):
         print('sheets success')
     else:
         print('sheets fail')
+
+    # people
+    people_service = get_service(type="people")
+    if people_service:
+        print("people success")
+    else:
+        print("people fail")

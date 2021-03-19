@@ -24,7 +24,6 @@ test_cred = '--test-cred' in argv
 
 def init_contacts(delete=False):
     if delete:
-        # TODO fix
         contacts.delete_contacts()
     contacts.load_contacts()
 

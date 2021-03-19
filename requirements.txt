@@ -1,7 +1,6 @@
 appdirs==1.4.3
 backports.shutil-get-terminal-size==1.0.0
 decorator==4.0.11
--e git+https://github.com/dvska/gdata-python3#egg=gdata
 enum34==1.1.6
 google-api-python-client>=1.9.1,<1.12.0
 httplib2==0.18.1
