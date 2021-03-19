@@ -75,11 +75,11 @@ sudo cp /usr/share/zoneinfo/America/Chicago /etc/localtime
 
 ```bash
 sudo apt update
-sudo apt install python-setuptools 
-sudo apt install python-pip  
-sudo pip install virtualenv 
+sudo apt install python-setuptools
+sudo apt install python-pip
+sudo pip install virtualenv
 sudo apt-get update
-sudo apt-get install python-dev gcc 
+sudo apt-get install python-dev gcc
 ```
 
 ## code requirements
@@ -113,7 +113,7 @@ We recommend creating a new Google account. The app iterates through all contact
 
 ### register google application
 
-_incognito:_ https://console.cloud.google.com/home/dashboard  
+_incognito:_ https://console.cloud.google.com/home/dashboard
 
 Google might prompt you, if this is a new account, to accept terms and set a country. Do so, then continue by creating a project (click "Create Project").
 
@@ -145,7 +145,7 @@ Now you need to grant permission to specific Google services:
 - APIs & Services > Library
   - search for and enable the following APIs:
     - Gmail API
-    - Contacts API
+    - People API
     - Sheets API
     - Drive API
 
@@ -162,7 +162,7 @@ cd foiamail
 . bin/activate
 ```
 
-Then trigger the Google credentials download by invoking the OAuth 2.0 flow: 
+Then trigger the Google credentials download by invoking the OAuth 2.0 flow:
 
 ```bash
 python mgr.py --get-cred
@@ -171,7 +171,7 @@ python mgr.py --get-cred
 Follow the instructions to copy/paste the link into a browser, accept the requested permissions, and then enter the verification code found on the screen into the program. You'll probably get a "This app isn't verified" warning if you're using Chrome. Click "Advanced" and continue, ignoring the error. Make sure to allow all permissions requested.
 
 ### Auth
-The `auth` module works behind the scenes in every other FOIAMail module. The wrapper functions, `get_service()` and `get_gd_client()`, are called by Contacts, GMail, Drive and Sheets APIs to authenticate requests.  
+The `auth` module works behind the scenes in every other FOIAMail module. The wrapper function, `get_service()`, is called by People, GMail, Drive and Sheets APIs to authenticate requests.
 
 The auth module depends on the `credentials.dat` file to verify requests.
 
