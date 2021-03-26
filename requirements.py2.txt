@@ -21,7 +21,7 @@ pyasn1-modules==0.2.1
 Pygments==2.2.0
 pyparsing==2.2.0
 python-docx==0.8.6
-pyyaml==5.3.1
+pyyaml==5.4
 rsa==3.4.2
 rsa==3.4.2
 simplegeneric==0.8.1
