@@ -18,7 +18,7 @@ prompt-toolkit==1.0.14
 ptyprocess==0.5.1
 pyasn1==0.4.2
 pyasn1-modules==0.2.1
-Pygments==2.2.0
+Pygments==2.7.4
 pyparsing==2.2.0
 python-docx==0.8.6
 pyyaml==5.3.1
